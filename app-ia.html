@@ -1,0 +1,1447 @@
+<!doctype html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aplicativo interativo de IA para professores | CV de autoaprendizagem</title>
+<meta name="description" content="Preencha os campos e gere prompts perfeitos para sua IA favorita. Automatize seu trabalho de ensino sem copiar ou colar.">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+:root{--purple:#6366f1;--orange:#f97316}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b;margin:0}
+#scroll-progress{position:fixed;top:0;left:0;width:0;height:4px;background:linear-gradient(90deg,#6366f1,#f97316,#ec4899);z-index:9999;transition:width .1s linear;border-radius:0 2px 2px 0}
+#back-to-top{position:fixed;bottom:2rem;right:2rem;width:3rem;height:3rem;background:linear-gradient(135deg,#6366f1,#a78bfa);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;pointer-events:none;transform:translateY(20px);transition:all .3s ease;z-index:998;border:none;box-shadow:0 8px 25px rgba(99,102,241,.4);font-size:1rem}
+#back-to-top.visible{opacity:1;pointer-events:all;transform:translateY(0)}
+#back-to-top:hover{transform:translateY(-4px)}
+.hero-section{background-image:linear-gradient(135deg,rgba(99,102,241,.92) 0%,rgba(167,139,250,.88) 60%,rgba(249,115,22,.85) 100%),url('https://images.unsplash.com/photo-1485546246426-74dc88dec4d9?q=80&w=2000&auto=format&fit=crop');background-size:cover;background-position:center;background-attachment:fixed}
+.hero-shimmer{background:linear-gradient(90deg,#fff 40%,rgba(255,255,255,.6) 50%,#fff 60%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 4s linear infinite}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+.gradient-text{background:linear-gradient(135deg,#6366f1,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.card-pro{background:#fff;border-radius:1.25rem;box-shadow:0 4px 20px rgba(0,0,0,.05);border:1px solid rgba(0,0,0,.04);transition:all .3s ease}
+.card-pro:hover{transform:translateY(-2px);box-shadow:0 12px 35px rgba(0,0,0,.09)}
+/* SIDEBAR */
+aside nav a{transition:all .25s ease;color:#475569;border-left:3px solid transparent;display:flex;align-items:center;gap:.6rem;padding:.6rem .9rem;border-radius:.75rem;font-size:.85rem;font-weight:500;text-decoration:none}
+aside nav a:hover,aside nav a.active{background:linear-gradient(90deg,rgba(99,102,241,.1),transparent)!important;color:#6366f1;border-left-color:#6366f1;padding-left:1.2rem;font-weight:700}
+#sidebar-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:999;background:linear-gradient(135deg,#6366f1,#a78bfa);color:#fff;border:none;width:2.8rem;height:2.8rem;border-radius:.9rem;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer;box-shadow:0 4px 16px rgba(99,102,241,.4)}
+#sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(4px);z-index:490}
+@media(max-width:1023px){#sidebar-toggle{display:flex}aside{position:fixed!important;top:0;left:0;height:100dvh!important;width:85vw!important;max-width:340px!important;z-index:500;transform:translateX(-110%);transition:transform .35s cubic-bezier(.4,0,.2,1);overflow-y:auto}aside.sidebar-open{transform:translateX(0);box-shadow:8px 0 40px rgba(0,0,0,.18)}#sidebar-backdrop.active{display:block}#main-content{width:100%!important}}
+/* ACCORDIONS */
+details{transition:box-shadow .3s ease}
+details:hover{border-color:rgba(99,102,241,.25)!important}
+details[open]{box-shadow:0 8px 30px rgba(99,102,241,.08)!important}
+details summary{user-select:none;cursor:pointer;list-style:none;outline:none}
+details summary::-webkit-details-marker{display:none}
+details summary .chev{transition:transform .3s ease}
+details[open] summary .chev{transform:rotate(180deg)}
+/* TASK CARDS */
+.task-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:1rem;padding:1.5rem;transition:all .3s ease;position:relative;overflow:hidden}
+.task-card:hover{border-color:rgba(99,102,241,.3);box-shadow:0 8px 30px rgba(99,102,241,.09)}
+/* FORM FIELDS */
+.field-group{margin-bottom:1rem}
+.field-label{display:block;font-size:.8rem;font-weight:700;color:#4f46e5;margin-bottom:.35rem;display:flex;align-items:center;gap:.4rem}
+.field-input{width:100%;border:1.5px solid #e0e7ff;border-radius:.65rem;padding:.55rem .85rem;font-size:.85rem;color:#1e293b;font-family:'Plus Jakarta Sans',sans-serif;background:#fafbff;transition:all .2s ease;outline:none}
+.field-input:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.12);background:#fff}
+.field-input::placeholder{color:#94a3b8}
+select.field-input{cursor:pointer}
+/* LAUNCH BUTTON */
+.launch-btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.7rem 1.6rem;border-radius:.85rem;font-weight:700;font-size:.9rem;cursor:pointer;transition:all .25s ease;border:none;margin-top:.5rem;width:100%}
+.launch-btn-primary{background:linear-gradient(135deg,#6366f1,#a78bfa);color:#fff;box-shadow:0 4px 16px rgba(99,102,241,.35)}
+.launch-btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(99,102,241,.5)}
+.launch-btn-secondary{background:linear-gradient(135deg,#f97316,#fb923c);color:#fff;box-shadow:0 4px 16px rgba(249,115,22,.3)}
+.launch-btn-secondary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(249,115,22,.45)}
+/* AI SELECTOR */
+.ai-selector{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
+.ai-btn{padding:.4rem .9rem;border-radius:20px;font-size:.75rem;font-weight:700;cursor:pointer;border:1.5px solid;transition:all .2s ease}
+.ai-btn[data-ai="chatgpt"]{border-color:#10b981;color:#059669;background:rgba(16,185,129,.07)}
+.ai-btn[data-ai="claude"]{border-color:#f97316;color:#c2410c;background:rgba(249,115,22,.07)}
+.ai-btn[data-ai="gemini"]{border-color:#6366f1;color:#4f46e5;background:rgba(99,102,241,.07)}
+.ai-btn.selected{color:#fff!important;transform:scale(1.05)}
+.ai-btn[data-ai="chatgpt"].selected{background:#10b981!important;border-color:#10b981}
+.ai-btn[data-ai="claude"].selected{background:#f97316!important;border-color:#f97316}
+.ai-btn[data-ai="gemini"].selected{background:#6366f1!important;border-color:#6366f1}
+/* PREVIEW BOX */
+.preview-box{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:.75rem;padding:1rem;font-size:.8rem;line-height:1.7;color:#475569;white-space:pre-wrap;max-height:200px;overflow-y:auto;word-break:break-word;display:none}
+.preview-box.show{display:block}
+.preview-highlight{background:rgba(99,102,241,.12);color:#4f46e5;border-radius:.3rem;padding:0 .25rem;font-weight:600}
+/* STAGE TAGS */
+.stage-tag{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .6rem;border-radius:20px;font-size:.68rem;font-weight:700;letter-spacing:.3px}
+.tag-eso{background:#e0e7ff;color:#4f46e5}
+.tag-bach{background:#ffedd5;color:#c2410c}
+.tag-fp{background:#dcfce7;color:#15803d}
+.tag-all{background:#f1f5f9;color:#475569}
+/* SECTIONS */
+.fade-in{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s cubic-bezier(.4,0,.2,1)}
+.fade-in.in-view{opacity:1;transform:translateY(0)}
+.section-divider{height:2px;background:linear-gradient(90deg,transparent,#e2e8f0 30%,#e2e8f0 70%,transparent);border:none;margin:0}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:#f1f5f9}
+::-webkit-scrollbar-thumb{background:#c7d2fe;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#6366f1}
+/* TOAST */
+#toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(80px);background:#1e293b;color:#fff;padding:.75rem 1.5rem;border-radius:1rem;font-size:.85rem;font-weight:600;z-index:9999;transition:transform .3s ease;display:flex;align-items:center;gap:.5rem;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+#toast.show{transform:translateX(-50%) translateY(0)}
+/* CATEGORY ICONS */
+.cat-icon{width:2.5rem;height:2.5rem;border-radius:.9rem;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+/* GRID */
+.tasks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.25rem}
+@media(max-width:640px){.tasks-grid{grid-template-columns:1fr}}
+</style>
+  <link rel="stylesheet" href="assets/portal-nav.css">
+</head>
+<body class="antialiased">
+<div id="scroll-progress"></div>
+<button id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+<div id="sidebar-backdrop"></div>
+<button id="back-to-top"><i class="fas fa-arrow-up"></i></button>
+<div id="toast"><i class="fas fa-check-circle text-emerald-400"></i> <span id="toast-msg">Abrindo IA!</span></div>
+
+<div class="flex min-h-screen">
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="w-64 flex-shrink-0 bg-white border-r border-slate-100 shadow-sm sticky top-0 h-screen overflow-y-auto z-50">
+  <div class="p-5 border-b border-slate-100">
+    <div class="flex items-center gap-2.5 mb-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-700 flex items-center justify-center text-white shadow">🤖</div>
+      <div>
+        <div class="font-extrabold text-slate-800 text-sm leading-tight">Aplicativo interativo de IA</div>
+        <div class="text-xs text-slate-400">Gerar e iniciar prompts</div>
+      </div>
+    </div>
+    <!-- AI SELECTOR GLOBAL -->
+    <div class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">IA preferida:</div>
+    <div class="flex gap-1.5 flex-wrap" id="global-ai-selector">
+      <button class="ai-btn selected" data-ai="chatgpt" onclick="selectGlobalAI('chatgpt',this)">💚 ChatGPT</button>
+      <button class="ai-btn" data-ai="claude" onclick="selectGlobalAI('claude',this)">🟠 Claude</button>
+      <button class="ai-btn" data-ai="gemini" onclick="selectGlobalAI('gemini',this)">🔵 Gêmeos</button>
+    </div>
+  </div>
+  <nav class="p-3 space-y-0.5">
+    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest px-2 pt-3 pb-1">Categorias</p>
+    <a href="#ia1"><i class="fas fa-file-alt w-4 text-indigo-400"></i> Programação</a>
+    <a href="#ia2"><i class="fas fa-star w-4 text-yellow-400"></i> Avaliação</a>
+    <a href="#ia3"><i class="fas fa-comments w-4 text-emerald-500"></i> Feedback</a>
+    <a href="#ia4"><i class="fas fa-seedling w-4 text-green-500"></i> SA Situações</a>
+    <a href="#ia5"><i class="fas fa-language w-4 text-blue-500"></i> Inglês / Idiomas</a>
+    <a href="#ia6"><i class="fas fa-flask w-4 text-cyan-500"></i> STEM</a>
+    <a href="#ia7"><i class="fas fa-gamepad w-4 text-pink-500"></i> Gamificação</a>
+    <a href="#ia8"><i class="fas fa-robot w-4 text-violet-500"></i> Aplicativos digitais</a>
+    <a href="#ia9"><i class="fas fa-hands-helping w-4 text-rose-400"></i> Inclusão</a>
+    <a href="#ia10"><i class="fas fa-tasks w-4 text-slate-400"></i> Gerenciamento</a>
+    <a href="#ia11" style="color:#7c3aed;background:rgba(124,58,237,.07);border:1px solid rgba(124,58,237,.2)"><i class="fas fa-music w-4 text-purple-500"></i> 🎵 Criador de músicas</a>
+    <a href="#ia12" style="color:#0891b2;background:rgba(8,145,178,.07);border:1px solid rgba(8,145,178,.2)"><i class="fas fa-layer-group w-4 text-cyan-600"></i> 📦 Unidades de criação de músicas</a>
+    <hr class="my-2 border-slate-100">
+    <a href="normativa-cv/index.html"><i class="fas fa-arrow-left w-4 text-slate-400"></i> Regulamentos de CV</a>
+    <a href="app-prompts.html"><i class="fas fa-copy w-4 text-indigo-400"></i> Apenas solicita</a>
+    <a href="app-rubricas.html" style="color:#be185d;background:rgba(190,24,93,.07);border:1px solid rgba(190,24,93,.2)"><i class="fas fa-star w-4 text-pink-600"></i> Rubricas e agentes do aplicativo</a>
+  </nav>
+  <div class="p-3 mx-3 mb-3 rounded-2xl bg-gradient-to-br from-violet-50 to-indigo-50 border border-violet-100">
+    <div class="text-xs font-bold text-violet-700 mb-1">⚡ Como</div>
+    <div class="text-xs text-slate-500 leading-relaxed">funciona
+Preencha o campos e pressione o botão de palavra. Sua IA abre com o prompt já preparado.</div>
+  </div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<main id="main-content" class="flex-1 min-w-0">
+
+<!-- HERO -->
+<section class="hero-section text-white py-16 px-8 md:px-14">
+  <div class="max-w-4xl">
+    <div class="inline-flex items-center gap-2 bg-white/15 border border-white/25 rounded-full px-4 py-1.5 text-xs font-semibold mb-5 backdrop-blur-sm">
+      <i class="fas fa-bolt text-yellow-300"></i> Preencher · Gerar · Lançar sua IA
+    </div>
+    <h1 class="text-3xl md:text-5xl font-extrabold leading-tight mb-2 hero-shimmer">Aplicativo interativo de IA<br>para professores</h1>
+    <p class="text-lg md:text-2xl font-bold text-white/90 mb-4 tracking-wide">Automação Pedagógica Inteligente · Comunitat Valenciana</p>
+    <p class="text-base md:text-lg text-white/80 max-w-2xl leading-relaxed mb-5">Escolha sua tarefa, preencha os campos e pressione o botão botão. Sua IA recebe o prompt perfeito e gera o resultado instantaneamente. Sem copiar. Sem colar.</p>
+    <div class="flex flex-wrap gap-3 items-center">
+      <span class="bg-white/15 backdrop-blur-sm border border-white/25 rounded-full px-4 py-1.5 text-xs font-semibold flex items-center gap-1.5"><i class="fas fa-check text-green-300"></i> ChatGPT compatível com</span>
+      <span class="bg-white/15 backdrop-blur-sm border border-white/25 rounded-full px-4 py-1.5 text-xs font-semibold flex items-center gap-1.5"><i class="fas fa-check text-orange-300"></i> Claude compatível com</span>
+      <span class="bg-white/15 backdrop-blur-sm border border-white/25 rounded-full px-4 py-1.5 text-xs font-semibold flex items-center gap-1.5"><i class="fas fa-check text-blue-300"></i> Gemini compatível com</span>
+    </div>
+  </div>
+</section>
+
+<div class="max-w-6xl mx-auto px-5 md:px-10 py-10 space-y-8">
+
+<!-- STATS -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 fade-in">
+  <div class="card-pro p-4 text-center"><div class="text-2xl font-extrabold gradient-text">35+</div><div class="text-xs text-slate-500 mt-0.5">Tarefas automatizadas</div></div>
+  <div class="card-pro p-4 text-center"><div class="text-2xl font-extrabold gradient-text">3</div><div class="text-xs text-slate-500 mt-0.5">AIs suportados</div></div>
+  <div class="card-pro p-4 text-center"><div class="text-2xl font-extrabold gradient-text">0</div><div class="text-xs text-slate-500 mt-0.5">É necessário copiar/colar</div></div>
+  <div class="card-pro p-4 text-center"><div class="text-2xl font-extrabold gradient-text">∞</div><div class="text-xs text-slate-500 mt-0.5">Possibilidades</div></div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="fade-in card-pro p-6">
+  <h2 class="font-extrabold text-slate-800 text-lg mb-4 flex items-center gap-2"><i class="fas fa-info-circle text-indigo-400"></i> Como funciona?</h2>
+  <div class="grid md:grid-cols-3 gap-4">
+    <div class="bg-indigo-50 rounded-xl p-4 text-center border border-indigo-100">
+      <div class="text-3xl mb-2">1️⃣</div>
+      <div class="font-bold text-indigo-800 text-sm">Selecione seu AI favorito</div>
+      <p class="text-xs text-slate-500 mt-1">ChatGPT, Claude ou Gemini (acima no menu lateral)</p>
+    </div>
+    <div class="bg-purple-50 rounded-xl p-4 text-center border border-purple-100">
+      <div class="text-3xl mb-2">2️⃣</div>
+      <div class="font-bold text-purple-800 text-sm">Preencha os campos</div>
+      <p class="text-xs text-slate-500 mt-1">Escreva sua matéria, curso, tema e o que precisar em cada campo</p>
+    </div>
+    <div class="bg-orange-50 rounded-xl p-4 text-center border border-orange-100">
+      <div class="text-3xl mb-2">3️⃣</div>
+      <div class="font-bold text-orange-800 text-sm">Aperte o botão</div>
+      <p class="text-xs text-slate-500 mt-1">Sua IA abre com o prompt perfeito já preparado. Preparar!</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+  CATEGORÍA IA 1 – PROGRAMACIÓN
+══════════════════════════════ -->
+<div id="ia1" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100" open>
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-indigo-100 text-indigo-700">📝</div>
+    <div><div class="font-bold text-slate-800">Programação e Planejamento Didático</div><div class="text-xs text-slate-400">Gere cronogramas completos com AI</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+<div class="tasks-grid">
+
+  <!-- TASK: Prog. ESO -->
+  <div class="task-card" id="task-prog-eso">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-eso">QUE</span>
+      <span class="font-bold text-slate-700 text-sm">Planejamento Didático ESO</span>
+    </div>
+    <div id="form-prog-eso" class="space-y-2"></div>
+    <div class="flex gap-2 mt-3">
+      <button class="launch-btn launch-btn-primary flex-1" onclick="launch('prog-eso')"><i class="fas fa-rocket"></i> Acionar</button>
+      <button class="launch-btn flex-1 bg-slate-100 text-slate-600 hover:bg-slate-200 border-0" style="background:#f1f5f9;color:#475569" onclick="previewPrompt('prog-eso')"><i class="fas fa-eye"></i> Visualização</button>
+    </div>
+    <div class="preview-box mt-3" id="preview-prog-eso"></div>
+  </div>
+
+  <!-- TASK: Prog. Bach -->
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-bach">Bacharelado</span>
+      <span class="font-bold text-slate-700 text-sm">Planejamento Didático de Bach.</span>
+    </div>
+    <div id="form-prog-bach" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('prog-bach')"><i class="fas fa-rocket"></i> Acionar</button>
+    <div class="preview-box mt-3" id="preview-prog-bach"></div>
+  </div>
+
+  <!-- TASK: Prog. FP -->
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-fp">PF</span>
+      <span class="font-bold text-slate-700 text-sm">Programação do módulo FP</span>
+    </div>
+    <div id="form-prog-fp" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('prog-fp')"><i class="fas fa-rocket"></i> Acionar</button>
+    <div class="preview-box mt-3" id="preview-prog-fp"></div>
+  </div>
+
+  <!-- TASK: SA -->
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-all">Todos</span>
+      <span class="font-bold text-slate-700 text-sm">Situação de aprendizagem completa</span>
+    </div>
+    <div id="form-sa" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('sa')"><i class="fas fa-rocket"></i> Design</button>
+    <div class="preview-box mt-3" id="preview-sa"></div>
+  </div>
+
+</div>
+</div>
+</details>
+</div>
+
+<!-- ══════════════════════════════
+  CATEGORÍA IA 2 – EVALUACIÓN
+══════════════════════════════ -->
+<div id="ia2" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-yellow-100 text-yellow-700">⭐</div>
+    <div><div class="font-bold text-slate-800">Avaliação, rubricas e testes</div><div class="text-xs text-slate-400">Rubricas
+· Testes de competência · Autoavaliação</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+<div class="tasks-grid">
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-all">Todos</span>
+      <span class="font-bold text-slate-700 text-sm">Rubrica de Avaliação</span>
+    </div>
+    <div id="form-rubrica" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('rubrica')"><i class="fas fa-rocket"></i> Criar</button>
+    <div class="preview-box mt-3" id="preview-rubrica"></div>
+  </div>
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-all">Todos</span>
+      <span class="font-bold text-slate-700 text-sm">Prova Escrita por Competências</span>
+    </div>
+    <div id="form-examen" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('examen')"><i class="fas fa-rocket"></i> Design</button>
+    <div class="preview-box mt-3" id="preview-examen"></div>
+  </div>
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-all">Todos</span>
+      <span class="font-bold text-slate-700 text-sm">Questionário / Bateria de Perguntas</span>
+    </div>
+    <div id="form-quiz" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('quiz')"><i class="fas fa-rocket"></i> Acionar</button>
+    <div class="preview-box mt-3" id="preview-quiz"></div>
+  </div>
+
+</div>
+</div>
+</details>
+</div>
+
+<!-- ══════════════════════════════
+  CATEGORÍA IA 3 – FEEDBACK
+══════════════════════════════ -->
+<div id="ia3" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-emerald-100 text-emerald-700">💬</div>
+    <div><div class="font-bold text-slate-800">Feedback e comunicação</div><div class="text-xs text-slate-400">Feedback formativo · Relatórios · Famílias</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+<div class="tasks-grid">
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-all">Todos</span>
+      <span class="font-bold text-slate-700 text-sm">Feedback formativo personalizado</span>
+    </div>
+    <div id="form-feedback" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('feedback')"><i class="fas fa-rocket"></i> Escreva</button>
+    <div class="preview-box mt-3" id="preview-feedback"></div>
+  </div>
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-all">Todos</span>
+      <span class="font-bold text-slate-700 text-sm">Relatório para famílias</span>
+    </div>
+    <div id="form-informe" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-secondary mt-3" onclick="launch('informe')"><i class="fas fa-paper-plane"></i> Escreva</button>
+    <div class="preview-box mt-3" id="preview-informe"></div>
+  </div>
+
+</div>
+</div>
+</details>
+</div>
+
+<!-- ══════════════════════════════
+  CATEGORÍA IA 4 – SA Y METODOLOGÍAS
+══════════════════════════════ -->
+<div id="ia4" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-green-100 text-green-700">🌱</div>
+    <div><div class="font-bold text-slate-800">Metodologias ativas</div><div class="text-xs text-slate-400">ABP · APS · Cooperativo · Design Thinking</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+<div class="tasks-grid">
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-eso">QUE</span><span class="stage-tag tag-bach">Bach.</span>
+      <span class="font-bold text-slate-700 text-sm">Projeto ABP</span>
+    </div>
+    <div id="form-abp" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('abp')"><i class="fas fa-rocket"></i> Design</button>
+    <div class="preview-box mt-3" id="preview-abp"></div>
+  </div>
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-all">Todos</span>
+      <span class="font-bold text-slate-700 text-sm">Serviço de Aprendizagem (APS)</span>
+    </div>
+    <div id="form-aps" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('aps')"><i class="fas fa-rocket"></i> Design</button>
+    <div class="preview-box mt-3" id="preview-aps"></div>
+  </div>
+
+</div>
+</div>
+</details>
+</div>
+
+<!-- ══════════════════════════════
+  CATEGORÍA IA 5 – INGLÉS
+══════════════════════════════ -->
+<div id="ia5" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-blue-100 text-blue-700">🇬🇧</div>
+    <div><div class="font-bold text-slate-800">Inglês e Línguas Estrangeiras</div><div class="text-xs text-slate-400">Falar · Escrever · Ler · Ouvir · Gramática</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+<div class="tasks-grid">
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-eso">QUE</span><span class="stage-tag tag-bach">Bach.</span>
+      <span class="text-blue-600 font-bold text-xs">🗣️ FALAR</span>
+    </div>
+    <div id="form-speaking" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('speaking')"><i class="fas fa-microphone"></i> Criar Simuladores</button>
+    <div class="preview-box mt-3" id="preview-speaking"></div>
+  </div>
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-eso">QUE</span><span class="stage-tag tag-bach">Bach.</span>
+      <span class="text-blue-600 font-bold text-xs">✍️ ESCRITA</span>
+    </div>
+    <div id="form-writing" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('writing')"><i class="fas fa-pen"></i> Criar Simuladores</button>
+    <div class="preview-box mt-3" id="preview-writing"></div>
+  </div>
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-eso">QUE</span><span class="stage-tag tag-bach">Bach.</span>
+      <span class="text-blue-600 font-bold text-xs">📖 LEITURA</span>
+    </div>
+    <div id="form-reading" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('reading')"><i class="fas fa-book-open"></i> Criar Simuladores</button>
+    <div class="preview-box mt-3" id="preview-reading"></div>
+  </div>
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-eso">QUE</span><span class="stage-tag tag-bach">Bach.</span>
+      <span class="text-blue-600 font-bold text-xs">📐 GRAMÁTICA</span>
+    </div>
+    <div id="form-grammar" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('grammar')"><i class="fas fa-spell-check"></i> Criar Simuladores</button>
+    <div class="preview-box mt-3" id="preview-grammar"></div>
+  </div>
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-fp">PF</span>
+      <span class="text-blue-600 font-bold text-xs">🏭 INGLÊS PROFISSIONAL</span>
+    </div>
+    <div id="form-ingles-prof" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('ingles-prof')"><i class="fas fa-briefcase"></i> Criar</button>
+    <div class="preview-box mt-3" id="preview-ingles-prof"></div>
+  </div>
+
+</div>
+</div>
+</details>
+</div>
+
+<!-- ══════════════════════════════
+  CATEGORÍA IA 6 – STEM
+══════════════════════════════ -->
+<div id="ia6" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-cyan-100 text-cyan-700">🔬</div>
+    <div><div class="font-bold text-slate-800">STEM e Laboratório Virtual</div><div class="text-xs text-slate-400">· Problemas · Projetos STEAM</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+<div class="tasks-grid">
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-eso">QUE</span><span class="stage-tag tag-bach">Bach.</span>
+      <span class="font-bold text-slate-700 text-sm">Laboratório Virtual</span>
+    </div>
+    <div id="form-lab" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('lab')"><i class="fas fa-flask"></i> Design</button>
+    <div class="preview-box mt-3" id="preview-lab"></div>
+  </div>
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-all">Todos</span>
+      <span class="font-bold text-slate-700 text-sm">Integrador de Projetos STEAM</span>
+    </div>
+    <div id="form-steam" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('steam')"><i class="fas fa-rocket"></i> Design</button>
+    <div class="preview-box mt-3" id="preview-steam"></div>
+  </div>
+
+</div>
+</div>
+</details>
+</div>
+
+<!-- ══════════════════════════════
+  CATEGORÍA IA 7 – GAMIFICACIÓN
+══════════════════════════════ -->
+<div id="ia7" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-pink-100 text-pink-700">🎮</div>
+    <div><div class="font-bold text-slate-800">Gamificação e Recursos Lúdicos</div><div class="text-xs text-slate-400">Kahoot · Pasapalabra · Escape Room · Bingo</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+<div class="tasks-grid">
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-all">Todos</span>
+      <span class="font-bold text-slate-700 text-sm">Questionário Kahoot / Quiziz</span>
+    </div>
+    <div id="form-kahoot" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('kahoot')"><i class="fas fa-gamepad"></i> Criar</button>
+    <div class="preview-box mt-3" id="preview-kahoot"></div>
+  </div>
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-all">Todos</span>
+      <span class="font-bold text-slate-700 text-sm">Senha educacional</span>
+    </div>
+    <div id="form-pasapalabra" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('pasapalabra')"><i class="fas fa-circle"></i> Criar</button>
+    <div class="preview-box mt-3" id="preview-pasapalabra"></div>
+  </div>
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-all">Todos</span>
+      <span class="font-bold text-slate-700 text-sm">Escape Room Educacional</span>
+    </div>
+    <div id="form-escape" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-secondary mt-3" onclick="launch('escape')"><i class="fas fa-lock"></i> Design</button>
+    <div class="preview-box mt-3" id="preview-escape"></div>
+  </div>
+
+</div>
+</div>
+</details>
+</div>
+
+<!-- ══════════════════════════════
+  CATEGORÍA IA 8 – APPS DIGITALES
+══════════════════════════════ -->
+<div id="ia8" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-violet-100 text-violet-700">🤖</div>
+    <div><div class="font-bold text-slate-800">Aplicativos e artefatos digitais</div><div class="text-xs text-slate-400">Aplicativos HTML · Chatbots · Infográficos · Vídeo</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+<div class="tasks-grid">
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-all">Todos</span>
+      <span class="font-bold text-slate-700 text-sm">Aplicativo educacional interativo (HTML)</span>
+    </div>
+    <div id="form-app-html" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('app-html')"><i class="fas fa-code"></i> Programa</button>
+    <div class="preview-box mt-3" id="preview-app-html"></div>
+  </div>
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-all">Todos</span>
+      <span class="font-bold text-slate-700 text-sm">Educacional Chatbot AI Tutor</span>
+    </div>
+    <div id="form-chatbot" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-secondary mt-3" onclick="launch('chatbot')"><i class="fas fa-robot"></i> Design</button>
+    <div class="preview-box mt-3" id="preview-chatbot"></div>
+  </div>
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-all">Todos</span>
+      <span class="font-bold text-slate-700 text-sm">Infográfico Educacional</span>
+    </div>
+    <div id="form-infografia" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('infografia')"><i class="fas fa-image"></i> Design</button>
+    <div class="preview-box mt-3" id="preview-infografia"></div>
+  </div>
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-all">Todos</span>
+      <span class="font-bold text-slate-700 text-sm">Roteiro de Vídeo Educativo</span>
+    </div>
+    <div id="form-video" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('video')"><i class="fas fa-video"></i> Escreva</button>
+    <div class="preview-box mt-3" id="preview-video"></div>
+  </div>
+
+</div>
+</div>
+</details>
+</div>
+
+<!-- ══════════════════════════════
+  CATEGORÍA IA 9 – INCLUSIÓN
+══════════════════════════════ -->
+<div id="ia9" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-rose-100 text-rose-700">♿</div>
+    <div><div class="font-bold text-slate-800">Inclusão, DUA e Adaptações</div><div class="text-xs text-slate-400">DUA · ACINES · Altas capacidades</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+<div class="tasks-grid">
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-all">Todos</span>
+      <span class="font-bold text-slate-700 text-sm">Atividade com DUA</span>
+    </div>
+    <div id="form-dua" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('dua')"><i class="fas fa-universal-access"></i> Adaptar</button>
+    <div class="preview-box mt-3" id="preview-dua"></div>
+  </div>
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-eso">QUE</span>
+      <span class="font-bold text-slate-700 text-sm">Adaptação de ACINES</span>
+    </div>
+    <div id="form-acines" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('acines')"><i class="fas fa-user-check"></i> Criar</button>
+    <div class="preview-box mt-3" id="preview-acines"></div>
+  </div>
+
+</div>
+</div>
+</details>
+</div>
+
+<!-- ══════════════════════════════
+  CATEGORÍA IA 10 – GESTIÓN
+══════════════════════════════ -->
+<div id="ia10" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-slate-100 text-slate-700">📋</div>
+    <div><div class="font-bold text-slate-800">Gestão e Organização de Ensino</div><div class="text-xs text-slate-400">Recuperação · Avaliação inicial · Padrões · Minutas</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+<div class="tasks-grid">
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-all">Todos</span>
+      <span class="font-bold text-slate-700 text-sm">Plano de recuperação</span>
+    </div>
+    <div id="form-recuperacion" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('recuperacion')"><i class="fas fa-redo"></i> Criar</button>
+    <div class="preview-box mt-3" id="preview-recuperacion"></div>
+  </div>
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-all">Todos</span>
+      <span class="font-bold text-slate-700 text-sm">Avaliação diagnóstica inicial</span>
+    </div>
+    <div id="form-eval-inicial" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-primary mt-3" onclick="launch('eval-inicial')"><i class="fas fa-search"></i> Design</button>
+    <div class="preview-box mt-3" id="preview-eval-inicial"></div>
+  </div>
+
+  <div class="task-card">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-all">Todos</span>
+      <span class="font-bold text-slate-700 text-sm">Sala de aula participativa Padrões</span>
+    </div>
+    <div id="form-normas" class="space-y-2"></div>
+    <button class="launch-btn launch-btn-secondary mt-3" onclick="launch('normas')"><i class="fas fa-handshake"></i> Criar</button>
+    <div class="preview-box mt-3" id="preview-normas"></div>
+  </div>
+
+</div>
+</div>
+</details>
+</div>
+
+<!-- ══ CATEGORÍA IA 11 – CREADOR DE CANCIONES ══ -->
+<div id="ia11" class="fade-in">
+<details class="card-pro !p-0 border border-purple-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-purple-100 text-purple-700">🎵</div>
+    <div><div class="font-bold text-slate-800">Criador de músicas educacionais</div><div class="text-xs text-slate-400">Converta o plano de estudos em músicas com Gemini · Qualquer assunto e nível</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-purple-50">
+<div class="bg-purple-50 border border-purple-100 rounded-xl p-4 mb-4 text-sm text-purple-700">
+  <i class="fas fa-info-circle mr-1"></i> <strong>Recomendado com Gemini.</strong> Gemini gera letras com ritmo e rima de maneira especialmente eficaz. Selecione Gêmeos ao lado antes de pressionar o botão.
+</div>
+<div class="tasks-grid">
+
+  <div class="task-card" style="border-color:#e9d5ff">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-all">Todos</span>
+      <span class="font-bold text-slate-700 text-sm">🎤 Canção com a Agenda</span>
+    </div>
+    <div id="form-cancion" class="space-y-2"></div>
+    <button class="launch-btn mt-3" style="background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;box-shadow:0 4px 16px rgba(124,58,237,.35)" onclick="launch('cancion')"><i class="fas fa-music"></i> Compondo</button>
+    <div class="preview-box mt-3" id="preview-cancion"></div>
+  </div>
+
+  <div class="task-card" style="border-color:#e9d5ff">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-all">Todos</span>
+      <span class="font-bold text-slate-700 text-sm">🎼 Canção Mnemônica</span>
+    </div>
+    <div id="form-cancion-memo" class="space-y-2"></div>
+    <button class="launch-btn mt-3" style="background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;box-shadow:0 4px 16px rgba(124,58,237,.35)" onclick="launch('cancion-memo')"><i class="fas fa-brain"></i> Compondo</button>
+    <div class="preview-box mt-3" id="preview-cancion-memo"></div>
+  </div>
+
+  <div class="task-card" style="border-color:#e9d5ff">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-all">Todos</span>
+      <span class="font-bold text-slate-700 text-sm">🌍 Música em inglês (pedagógico)</span>
+    </div>
+    <div id="form-cancion-ingles" class="space-y-2"></div>
+    <button class="launch-btn mt-3" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:#fff;box-shadow:0 4px 16px rgba(59,130,246,.35)" onclick="launch('cancion-ingles')"><i class="fas fa-globe"></i> Criar música</button>
+    <div class="preview-box mt-3" id="preview-cancion-ingles"></div>
+  </div>
+
+</div>
+</div>
+</details>
+</div>
+
+<!-- ══ CATEGORÍA IA 12 – CREADOR DE UNIDADES ══ -->
+<div id="ia12" class="fade-in">
+<details class="card-pro !p-0 border border-cyan-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-cyan-100 text-cyan-700">📦</div>
+    <div><div class="font-bold text-slate-800">Criador de Unidades Didáticas Completas</div><div class="text-xs text-slate-400">Gera materiais completos em HTML prontos para upload para Aules</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-cyan-50">
+<div class="bg-cyan-50 border border-cyan-100 rounded-xl p-4 mb-4 text-sm text-cyan-700">
+  <i class="fas fa-graduation-cap mr-1"></i> <strong>Como funciona:</strong> Insira os dados da sua unidade, a IA gera um HTML completo com teoria, atividades, rubrica e recursos — prontos para serem carregados diretamente no Aules ou compartilhados com os alunos.
+</div>
+<div class="tasks-grid">
+
+  <div class="task-card" style="border-color:#a5f3fc">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-eso">QUE</span><span class="stage-tag tag-bach">Bach.</span>
+      <span class="font-bold text-slate-700 text-sm">📄 Unidade Didática Completa (HTML)</span>
+    </div>
+    <div id="form-unidad-html" class="space-y-2"></div>
+    <div class="flex gap-2 mt-3">
+      <button class="launch-btn flex-1" style="background:linear-gradient(135deg,#0891b2,#06b6d4);color:#fff;box-shadow:0 4px 16px rgba(8,145,178,.35)" onclick="launch('unidad-html')"><i class="fas fa-code"></i> Gerar HTML</button>
+      <button class="launch-btn flex-1 border-0" style="background:#f1f5f9;color:#475569" onclick="previewPrompt('unidad-html')"><i class="fas fa-eye"></i> Ver prompt</button>
+    </div>
+    <div class="preview-box mt-3" id="preview-unidad-html"></div>
+  </div>
+
+  <div class="task-card" style="border-color:#a5f3fc">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-fp">PF</span>
+      <span class="font-bold text-slate-700 text-sm">🔧 Unidade de trabalho FP (HTML)</span>
+    </div>
+    <div id="form-unidad-fp" class="space-y-2"></div>
+    <button class="launch-btn mt-3" style="background:linear-gradient(135deg,#0891b2,#06b6d4);color:#fff;box-shadow:0 4px 16px rgba(8,145,178,.35)" onclick="launch('unidad-fp')"><i class="fas fa-wrench"></i> Gerar HTML</button>
+    <div class="preview-box mt-3" id="preview-unidad-fp"></div>
+  </div>
+
+  <div class="task-card" style="border-color:#a5f3fc">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="stage-tag tag-all">Todos</span>
+      <span class="font-bold text-slate-700 text-sm">🎯 Pacote de recursos completo para 1 tópico</span>
+    </div>
+    <div id="form-pack-tema" class="space-y-2"></div>
+    <button class="launch-btn mt-3" style="background:linear-gradient(135deg,#059669,#10b981);color:#fff;box-shadow:0 4px 16px rgba(5,150,105,.35)" onclick="launch('pack-tema')"><i class="fas fa-box"></i> Criar pacote</button>
+    <div class="preview-box mt-3" id="preview-pack-tema"></div>
+  </div>
+
+</div>
+</div>
+</details>
+</div>
+
+<!-- AVISO RGPD -->
+<div class="fade-in card-pro border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 p-6">
+  <div class="flex items-start gap-4">
+    <div class="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-white text-lg flex-shrink-0">🔒</div>
+    <div>
+      <h3 class="font-bold text-emerald-800 mb-1">Privacidade e proteção de dados (GDPR)</h3>
+      <p class="text-sm text-emerald-700 leading-relaxed">Este aplicativo <strong>não coleta, armazena ou processa dados pessoais</strong>. Não utiliza cookies de rastreamento. Os prompts gerados são enviados diretamente para a IA de sua escolha (ChatGPT, Claude ou Gemini) — revise suas políticas de privacidade antes de incluir os dados dos alunos. <strong>Nunca insira nomes, anotações ou informações de identificação de menores.</strong> Sempre use dados anonimizados ou fictícios.</p>
+    </div>
+  </div>
+</div>
+
+<!-- CTA PROMPTS -->
+<div class="fade-in card-pro bg-gradient-to-br from-slate-800 to-indigo-900 text-white text-center p-10 border-0">
+  <div class="text-4xl mb-3">📚</div>
+  <h2 class="text-2xl font-extrabold mb-2">Você prefere copiar o prompt diretamente?</h2>
+  <p class="text-slate-300 mb-6 max-w-lg mx-auto text-sm">A biblioteca de prompts possui mais de 35 prompts prontos para copiar e colar em qualquer IA. Sem formulários.</p>
+  <div class="flex flex-wrap gap-3 justify-center">
+    <a href="app-prompts.html" class="inline-flex items-center gap-2 bg-white text-indigo-700 font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all text-sm">
+      <i class="fas fa-copy"></i> Biblioteca de prompts
+    </a>
+    <a href="app-rubricas.html" class="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all text-sm">
+      <i class="fas fa-star"></i> Aplicativo de rubricas e agentes
+    </a>
+  </div>
+</div>
+
+</div>
+<footer class="bg-white border-t border-slate-100 py-8 px-6 text-center mt-8">
+  <div class="max-w-2xl mx-auto">
+    <div class="font-extrabold text-slate-700 text-base mb-1">CV de autoaprendizagem · Ferramenta Automação pedagógica</div>
+    <div class="text-sm text-slate-500 mb-3">Aplicativo criado e revisado por <strong class="text-indigo-600">Ana Hernández Iranzo</strong> assistido com IA · Comunitat Valenciana · ESO, Baccalaureate e FP · Ano letivo 2025–2026</div>
+    <div class="text-xs text-slate-400 border-t border-slate-100 pt-3 mt-3">Criado por <strong>Ana H. Iranzo</strong>, assistido com IA · 🔒 Sem cookies · Sem dados pessoais · Em conformidade com RGPD</div>
+  </div>
+</footer>
+</main>
+</div>
+
+<script>
+// ═══════════ AI URLS ═══════════
+const AI_URLS = {
+  chatgpt: 'https://chatgpt.com/?q=',
+  claude:  'https://claude.ai/new?q=',
+  gemini:  'https://gemini.google.com/app?q='
+};
+let globalAI = 'chatgpt';
+
+function selectGlobalAI(ai, el){
+  globalAI = ai;
+  document.querySelectorAll("#global-ai-selector .ai-btn").forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  showToast("✅ IA selecionada: " + ai.charAt(0).toUpperCase()+ai.slice(1));
+}
+
+// ═══════════ PROMPT TEMPLATES ═══════════
+const TEMPLATES = {
+  'prog-eso': {
+    fields: [
+      {id:'materia',label:"Assunto",placeholder:"Ex: Ciências Sociais, Matemática, Linguagem..."},
+      {id:'curso',label:"Curso",placeholder:"Ex: 1º ESO, 3º ESO..."},
+      {id:'unidades',label:"Nº de unidades / SA",placeholder:"Ex: 8 situações de aprendizagem"},
+      {id:'metodologias',label:"Metodologias preferidas",placeholder:"Ex: ABP, cooperativa, DUA"},
+      {id:'alumnos',label:"Número de alunos e características",placeholder:"Ex: 28 alunos, 2 ACINES, 1 ACIS"}
+    ],
+    prompt: (f) => `Atua como professor especialista e conselheiro pedagógico da Comunidade Valenciana. Crie uma Planejamento Didático COMPLETA para a disciplina de ${f.materia}  ${f.curso} do ESO, de acordo com o Decreto 107/2022.
+Inclui TODAS estas seções:
+1. Contextualização do centro e do grupo (${f.alumnos})
+2. Contribuição para as competências-chave e o Perfil de Saída
+3. Competências específicas da disciplina (com códigos do Decreto)
+4. Critérios de avaliação (literal do Decreto 107/2022)
+5. Conhecimentos básicos organizados em ${f.unidades}
+6. Metodologia: ${f.metodologias}
+7. Instrumentos de avaliação e ponderação por trimestre
+8. Critérios de qualificação, recuperação, DUA e materiais`
+  },
+  'prog-bach': {
+    fields: [
+      {id:'materia',label:"Assunto",placeholder:"Ex: História da Espanha, Física, Literatura..."},
+      {id:'curso',label:"Curso",placeholder:"Ex: 1º Bacharelado, 2º Bacharelado"},
+      {id:'modalidad',label:'Modalidad',placeholder:"Ex: Ciências e Tecnologia, Humanidades..."},
+      {id:'metodologias',label:"Metodologias",placeholder:"Ex: Invertido, ABP, cooperativo"},
+      {id:'interdisciplinar',label:"Disciplinas para trabalho interdisciplinar",placeholder:"Ex: Filosofia, Matemática"}
+    ],
+    prompt: (f) => `Você é professor especialista em Bacharelado CV (Decreto 108/2022). Crie a programação de ensino completa ${f.materia} de ${f.curso} Bacharelado, modalidade ${f.modalidad}.
+Estrutura necessária:
+1. Contextualização e relação com os objetivos da etapa
+2. Competências específicas + vinculação de competências-chave
+3. Critérios de avaliação do Decreto 108/2022
+4. Conhecimentos básicos sequenciados por unidades
+5. Situações de aprendizagem: mínimo 2 desenvolvidas em detalhe
+6. Metodologia ativa: ${f.metodologias}
+7. Trabalho interdisciplinar com ${f.interdisciplinar}
+8. Avaliação, ponderação, recuperação e preparação EBAU`
+  },
+  'prog-fp': {
+    fields: [
+      {id:'modulo',label:"Nome do módulo",placeholder:"Ex: Sistemas de Computação, Marketing..."},
+      {id:'ciclo',label:"Nome do ciclo",placeholder:"Ex: ASIR, Administração e Finanças..."},
+      {id:'nivel',label:'Grado',placeholder:"Grau Intermediário ou Superior"},
+      {id:'familia',label:"Família profissional",placeholder:"Ex: TI, Comércio, Saúde..."},
+      {id:'horas',label:"Horas do módulo",placeholder:"Ex: 192 horas (6h/semana)"}
+    ],
+    prompt: (f) => `Você é um especialista em FP e regulamentos da Comunidade Valenciana (Decreto 114/2025). Cria a programação completa do módulo ${f.modulo} do ciclo ${f.ciclo} (${f.nivel}família ${f.familia}.
+Inclui: todos os Resultados de Aprendizagem (RA) com os seus Critérios de Avaliação (CE), conhecimentos básicos organizados em Unidades de Trabalho, sistema de avaliação e classificação ponderado por RA, instrumentos preferenciais, 2 situações de aprendizagem desenvolvidas, plano de recuperação, coordenação com a FCT e módulos transversais. Total de horas do módulo: ${f.horas}.`
+  },
+  'sa': {
+    fields: [
+      {id:'materia',label:"Assunto",placeholder:"Ex: Biologia, Inglês, História..."},
+      {id:'curso',label:"Curso e estágio",placeholder:"Ex: 4º ESO, 1º Bacharelado..."},
+      {id:'tematica',label:"Tema ou problema real",placeholder:"Ex: Mudanças climáticas em nossa cidade"},
+      {id:'semanas',label:"Duração",placeholder:"Ex: 4 semanas / 12 sessões"},
+      {id:'metodologia',label:"Metodologia principal",placeholder:"Ex: PBL, cooperativo, Design Thinking"}
+    ],
+    prompt: (f) => `Projete uma Situação de Aprendizagem completa para ${f.materia} de ${f.curso} sobre: ​​"${f.tematica}".
+Inclui: título motivador, contexto e justificativa, competências específicas (com códigos), competências-chave (CCL, STEM, CD, etc.), critérios de avaliação do Decreto 107/2022, conhecimentos básicos, descrição de 4 tarefas sequenciadas (da menor à maior complexidade), produto final, timing (${f.semanas}), metodologia ${f.metodologia}, rubrica com 4 níveis de realização e medidas DUA.`
+  },
+  'rubrica': {
+    fields: [
+      {id:'tarea',label:"Tarefa ou atividade a ser avaliada",placeholder:"Ex: Projeto de pesquisa, debate, ensaio..."},
+      {id:'materia',label:"Disciplina e curso",placeholder:"Ex: Língua Espanhola 3º ESO"},
+      {id:'criterios',label:"Critérios de avaliação",placeholder:"Ex: Critério 1, Critério 2, Critério 3..."}
+    ],
+    prompt: (f) => `Criar uma rubrica holística abrangente para avaliar ${f.tarea}  ${f.materia}.
+Critérios de avaliação a serem avaliados: ${f.criterios}
+
+A rubrica deve ter 4 níveis de realização: Iniciante (1-3), Processo (4-5), Consolidado (6-7), Avançado (8-10). Para CADA critério inclui descritores claros, observáveis ​​e mensuráveis ​​em cada nível, peso na nota final (%) e uma versão simplificada de autoavaliação para os alunos. Formato: tabela completa pronta para uso.`
+  },
+  'examen': {
+    fields: [
+      {id:'materia',label:"Disciplina e curso",placeholder:"Ex: Física 2º Bach."},
+      {id:'tema',label:"Conteúdo / Conhecimento básico",placeholder:"Ex: Movimento retilíneo uniforme, cinemática"},
+      {id:'criterios',label:"Critérios de avaliação",placeholder:"Ex: CE.FIS.2.1, CE.FIS.2.2..."},
+      {id:'tiempo',label:"Duração do teste",placeholder:"Ex: 60 minutos"},
+      {id:'nivel',label:"Nível",placeholder:"Padrão / Básico / Avançado"}
+    ],
+    prompt: (f) => `Projete um teste escrito por competências para ${f.materia} em: ${f.tema}. Critérios de avaliação: ${f.criterios}. Duração: ${f.tiempo}. Nível: ${f.nivel}.
+O teste deve incluir: Bloco 1 (30%) questões de lembrar/compreender, Bloco 2 (40%) aplicação com contexto real, Bloco 3 (30%) tarefa de competência aberta. Inclui instruções claras, valor de cada questão, critérios de correção e versão com adaptações para ACINES.`
+  },
+  'quiz': {
+    fields: [
+      {id:'materia',label:"Assunto",placeholder:"Ex: Ciências Naturais, História..."},
+      {id:'tema',label:"Tópico ou unidade",placeholder:"Ex: O sistema solar, A Revolução Francesa..."},
+      {id:'curso',label:"Curso",placeholder:"Ex: 2º ESO"},
+      {id:'num',label:"Número de questões",placeholder:"Ex: 20 questões"},
+      {id:'dificultad',label:"Distribuição de dificuldade",placeholder:"Ex: 8 fáceis, 8 médios, 4 difíceis"}
+    ],
+    prompt: (f) => `Crie perguntas de múltipla escolha ${f.num} para um questionário ${f.materia} sobre ${f.tema} para ${f.curso}.
+Para CADA pergunta inclui: declaração (máx. 120 caracteres para Kahoot), 4 opções (A, B, C, D) com exatamente 1 resposta correta, resposta correta marcada, breve explicação e nível de dificuldade. Distribuição: ${f.dificultad}. Formato: tabela pronta para importar para Kahoot ou Quiziz. Também inclui 3 perguntas com descrição da imagem.`
+  },
+  'feedback': {
+    fields: [
+      {id:'materia',label:"Disciplina e curso",placeholder:"Ex: Inglês 4º ESO"},
+      {id:'tarea',label:"Tarefa avaliada",placeholder:"Ex: Escrevendo sobre mudanças climáticas"},
+      {id:'positivo',label:"Pontos fortes do aluno",placeholder:"Ex: Boa estrutura, vocabulário rico..."},
+      {id:'mejora',label:"Áreas para melhoria",placeholder:"Ex: Gramática, coerência de argumentos..."},
+      {id:'tono',label:"Tom desejado",placeholder:"Próximo e motivador / Formal / Empoderador"}
+    ],
+    prompt: (f) => `Você é professor de ${f.materia}. Escreva feedback de treinamento personalizado para um aluno sobre ${f.tarea}.
+Pontos fortes: ${f.positivo}
+Áreas para melhoria: ${f.mejora}
+
+Redacta: 1) Reconocimiento inicial positivo y específico (2-3 frases), 2) 3-5 áreas de mejora concretas y accionables, 3) Recursos o estrategias para mejorar, 4) Una pregunta reflexiva, 5) Frase motivadora final. Tono: ${f.tono}. Máximo de 200 palavras. Evite julgamentos negativos.`
+  },
+  'informe': {
+    fields: [
+      {id:'curso',label:"Curso estudantil",placeholder:"Ex: 2º ESO A"},
+      {id:'trimestre',label:'Trimestre',placeholder:"Ex: 1º trimestre / 2º trimestre"},
+      {id:'notas',label:"Notas por disciplina",placeholder:"Ex: Matemática: 6, Idioma: 8, Inglês: 5..."},
+      {id:'comportamiento',label:"Atitude e comportamento",placeholder:"Ex: Participativo, respeitoso, distrativo..."},
+      {id:'mejora',label:"Áreas prioritárias de melhoria",placeholder:"Ex: Entrega do trabalho no prazo, estudo diário"}
+    ],
+    prompt: (f) => `Você é o guardião de ${f.curso}. Escreva um relatório trimestral (${f.trimestre}) para as famílias.
+Qualificações: ${f.notas}
+Comportamento: ${f.comportamiento}
+Áreas para melhoria: ${f.mejora}
+
+O relatório deve ser claro, respeitoso e construtivo para as famílias. Inclua sugestões concretas de apoio em casa. Comprimento: 250-350 palavras em parágrafos redigidos (não lista), prontos para envio por e-mail.`
+  },
+  'abp': {
+    fields: [
+      {id:'materia',label:'Materia/s',placeholder:"Ex: Ciências Sociais + Linguagem"},
+      {id:'curso',label:"Curso e estágio",placeholder:"Ex: 3º ESO"},
+      {id:'tema',label:"Tema ou problema real",placeholder:"Ex: Como podemos tornar nossa cidade mais sustentável?"},
+      {id:'semanas',label:"Duração",placeholder:"Ex: 5 semanas / 15 sessões"},
+      {id:'producto',label:"Produto final",placeholder:"Ex: Campanha, vídeo, modelo, aplicativo, exposição..."}
+    ],
+    prompt: (f) => `Projete um projeto ABP completo para ${f.materia} de ${f.curso}. Pergunta norteadora: "${f.tema}". Duração: ${f.semanas}. Produto final: ${f.producto}.
+Inclui: narrativa do desafio, 4 fases do projeto (Lançamento > Pesquisa > Criação > Apresentação), descrição das atividades por fase, assuntos envolvidos, rubrica de avaliação com critérios do Decreto 107/2022, competências-chave trabalhadas, adaptações do DUA e forma de apresentação pública do produto final.`
+  },
+  'aps': {
+    fields: [
+      {id:'materia',label:"Assunto",placeholder:"Ex: Educação para a Cidadania, Geografia..."},
+      {id:'curso',label:"Curso e estágio",placeholder:"Ex: 4º ESO"},
+      {id:'necesidad',label:"Necessidade detectada no ambiente",placeholder:"Ex: Idosos que precisam de suporte digital"},
+      {id:'servicio',label:"Tipo de serviço",placeholder:"Ex: Workshops, campanha de conscientização, voluntariado..."},
+      {id:'semanas',label:"Duração",placeholder:"Ex: 3 semanas"}
+    ],
+    prompt: (f) => `Elabore um projeto de Aprendizagem de Serviço (APS) para ${f.materia} de ${f.curso}. Necessidade detectada: ${f.necesidad}. Serviço a ser realizado: ${f.servicio}. Duração: ${f.semanas}.
+Inclui: fases APS (Preparação > Ação > Reflexão > Avaliação), articulação com conteúdos curriculares, entidade colaboradora proposta, produto de aprendizagem + evidência do serviço, sistema de avaliação (aprendizagem+serviço+reflexão), indicadores de impacto e competências chave CC e CE especialmente trabalhadas.`
+  },
+  'speaking': {
+    fields: [
+      {id:'year',label:"grupo do ano",placeholder:"Ex: 3º ESO / 1º Bacharelado"},
+      {id:'level',label:"Nível CEFR",placeholder:'A2 / B1 / B1+ / B2'},
+      {id:'type',label:"Tipo de atividade",placeholder:"Debate / Dramatização / Apresentação / Discussão"},
+      {id:'topic',label:'Topic',placeholder:"Ex: Redes Sociais, Meio Ambiente, Viagens..."},
+      {id:'duration',label:"Duração (minutos)",placeholder:"Ex: 15 minutos por par"}
+    ],
+    prompt: (f) => `Projete uma atividade de conversação completa para alunos ${f.year} no ${f.level} CEFR nível.
+Tipo atividade: ${f.type}. Tópico: ${f.topic}. Duração: ${f.duration}.
+Inclui: objetivos de aprendizagem (descritores CEFR), instruções passo a passo para o aluno, banco de idiomas útil (frases, conectores, expressões funcionais), cartões de função ou sugestões de discussão, detalhamento de tempo, rubrica de conversação (4 níveis: Fluência, Vocabulário, Gramática, Pronúncia, Comunicação), planilha de avaliação por pares e opções de andaimes para alunos de nível inferior.`
+  },
+  'writing': {
+    fields: [
+      {id:'year',label:"grupo do ano",placeholder:"Ex: 2º ESO / Bacharelado"},
+      {id:'level',label:"Nível CEFR",placeholder:'A2 / B1 / B2'},
+      {id:'type',label:"Tipo de texto",placeholder:"E-mail formal / Ensaio / História / Relatório / Revisão..."},
+      {id:'topic',label:"Prompt de escrita",placeholder:"Ex: Escreva sobre uma viagem memorável..."},
+      {id:'words',label:"Contagem de palavras",placeholder:"Ex: 150-200 palavras / 200-250 palavras"}
+    ],
+    prompt: (f) => `Crie uma tarefa de escrita completa para ${f.year} alunos de inglês no ${f.level} CEFR.
+Tipo de texto: ${f.type}. Tópico/Prompt: ${f.topic}. Contagem de palavras: ${f.words}.
+Fornece: instruções claras de tarefas, estrutura de planejamento (mapa mental ou perguntas guiadas), um texto modelo demonstrando convenções de gênero, vocabulário e expressões úteis, guia de estrutura parágrafo por parágrafo, critérios de classificação alinhados ao CEFR (Conteúdo, Organização, Idioma, Alcance, Precisão), lista de verificação de autocorreção e tarefa de extensão para alunos avançados.`
+  },
+  'reading': {
+    fields: [
+      {id:'year',label:"grupo do ano",placeholder:"Ex: 1º ESO / 2º Bacharelado"},
+      {id:'level',label:"Nível CEFR",placeholder:'A2 / B1 / B2'},
+      {id:'topic',label:"Tópico para o texto",placeholder:"Ex: Tecnologia, Esportes, Jovens..."},
+      {id:'genre',label:"Gênero de texto",placeholder:"Artigo de notícia / Blog / Conto / Entrevista..."},
+      {id:'length',label:"Comprimento aproximado do texto",placeholder:"Ex: 250-300 palavras"}
+    ],
+    prompt: (f) => `Escreva para ${f.genre} lendo texto (~${f.length}) e atividades de compreensão para ${f.year} em ${f.level} CEFR. Tópico: ${f.topic}.
+Inclui: o próprio texto de leitura (vocabulário e sintaxe apropriados), glossário de 5 a 8 palavras-chave, questões de compreensão (3 literais + 2 inferenciais + 1 pensamento crítico), tarefa de foco na linguagem (vocabulário em contexto ou gramática), 3 questões para discussão e uma tarefa de extensão. Conexão intercurricular, se possível.`
+  },
+  'grammar': {
+    fields: [
+      {id:'grammar',label:"Ponto gramatical",placeholder:"Ex: Presente Perfeito vs Passado Simples, Condicionais..."},
+      {id:'level',label:"Nível CEFR",placeholder:'A2 / B1 / B2'},
+      {id:'year',label:"grupo do ano",placeholder:"Ex: 4º ESO / 1º Bach."},
+      {id:'context',label:"Contexto do tópico para exemplos",placeholder:"Ex: Tecnologia, Meio Ambiente, Vida cotidiana..."}
+    ],
+    prompt: (f) => `Explique a estrutura gramatical "${f.grammar}" para alunos que falam espanhol em ${f.level} CEFR, ${f.year}.
+Inclui: explicação clara (inglês simples) com comparação com o equivalente em espanhol, regras de formação com diagramas de fórmulas, 5 exemplos contextualizados (tópico: ${f.context}), erros comuns cometidos por falantes de espanhol + correções, 10 exercícios práticos controlados (preenchimento de lacunas + transformação) com chave de resposta, atividade comunicativa de pares/grupos usando a estrutura, um minijogo para prática e tarefa opcional de lição de casa.`
+  },
+  'ingles-prof': {
+    fields: [
+      {id:'ciclo',label:"Ciclo de treinamento",placeholder:"Ex: Administração de Sistemas de Computadores em Rede"},
+      {id:'sector',label:"Setor profissional",placeholder:"Ex: TI, Saúde, Hospitalidade..."},
+      {id:'topic',label:"Tópico profissional para a unidade",placeholder:"Ex: Entrevista de emprego, Reunião de equipe, Atendimento ao cliente..."},
+      {id:'nivel',label:"Nível de estudante",placeholder:'A2 / B1'}
+    ],
+    prompt: (f) => `Projetar materiais de inglês profissional para o módulo "Inglês Profissional" do curso profissionalizante ${f.ciclo} , setor: ${f.sector}. Nível do aluno: ${f.nivel}.
+Criar: visão geral da unidade em "${f.topic}", lista de vocabulário específico do setor (20 palavras com traduções), cenário de dramatização em contexto profissional, tarefa de redação profissional (e-mail/relatório/CV), tarefa de escuta de fonte profissional autêntica, rubrica de avaliação alinhada aos descritores profissionais B1 CEFR, recursos online para prática independente. Link para o conteúdo “Roteiro para Empregabilidade”.`
+  },
+  'lab': {
+    fields: [
+      {id:'experimento',label:"Experimento ou fenômeno",placeholder:"Ex: Lei de Boyle, Fotossíntese, Circuitos elétricos..."},
+      {id:'materia',label:"Disciplina e curso",placeholder:"Ex: Física e Química 3º ESO"},
+      {id:'app',label:"Aplicativo ou simulador",placeholder:"PhET / Labster / Chemix / Física de Crocodilos..."},
+      {id:'nivel',label:"Nível cognitivo",placeholder:"Básico / Intermediário / Avançado"}
+    ],
+    prompt: (f) => `Projete um laboratório virtual completo em "${f.experimento}" para ${f.materia}, usando ${f.app}. Nível cognitivo: ${f.nivel}.
+Inclui: questão de pesquisa, modelo de hipótese para alunos, protocolo experimental passo a passo com variáveis ​​identificadas, tabelas de dados e gráficos para preencher, roteiro do aluno com questões norteadoras, guia do professor (possíveis erros + questões socráticas), rubrica e relatório de laboratório a serem submetidos e aplicação do fenômeno na vida real ou na indústria.`
+  },
+  'steam': {
+    fields: [
+      {id:'materias',label:"Disciplinas envolvidas",placeholder:"Ex: Física + Matemática + Plásticos + Inglês"},
+      {id:'cursos',label:'Cursos',placeholder:"Ex: 3º e 4º ESO"},
+      {id:'reto',label:"Desafio central",placeholder:"Ex: Projetar um abrigo sustentável para áreas de risco"},
+      {id:'producto',label:"Produto final",placeholder:"Ex: Protótipo + apresentação + relatório técnico"},
+      {id:'semanas',label:"Duração",placeholder:"Ex: 6 semanas coordenadas entre departamentos"}
+    ],
+    prompt: (f) => `Desenhar um projeto STEAM integrativo para ${f.cursos} que funcione simultaneamente: ${f.materias}.
+Desafio Central: "${f.reto}". Produto final: ${f.producto}. Duração: ${f.semanas}.
+Inclui: tabela interdisciplinar (papel de cada disciplina no projeto), cronograma coordenado entre departamentos, rubrica de avaliação compartilhada com critérios para cada disciplina, conexão com ODS, proposta de apresentação pública do produto e como gerenciar a coordenação entre professores.`
+  },
+  'kahoot': {
+    fields: [
+      {id:'materia',label:"Assunto",placeholder:"Ex: Biologia, História, Inglês..."},
+      {id:'tema',label:"Tópico / Unidade",placeholder:"Ex: A célula, 2ª Guerra Mundial..."},
+      {id:'curso',label:"Curso",placeholder:"Ex: 2º ESO"},
+      {id:'num',label:"Número de questões",placeholder:"Ex: 20"},
+      {id:'dist',label:"Distribuição de dificuldade",placeholder:"Ex: 8 fáceis, 8 médios, 4 difíceis"}
+    ],
+    prompt: (f) => `Crie perguntas de múltipla escolha ${f.num} perguntas de múltipla escolha para Kahoot/Quiziz sobre ${f.tema}  ${f.materia} para ${f.curso}.
+Para CADA questão: afirmação (máx. 120 caracteres), 4 opções (A, B, C, D) com exatamente 1 resposta correta, marcada, breve explicação, nível de dificuldade. Distribuição: ${f.dist}. Adicione 3 perguntas de "imagem" com a descrição da imagem. Formato: tabela completa pronta para importação.`
+  },
+  'pasapalabra': {
+    fields: [
+      {id:'materia',label:"Assunto",placeholder:"Ex: Geografia, Inglês, Biologia..."},
+      {id:'tema',label:"Tópico ou vocabulário",placeholder:"Ex: O sistema circulatório, vocabulário em inglês Unidade 3..."},
+      {id:'curso',label:"Curso",placeholder:"Ex: 1º Bach."},
+      {id:'num',label:"Número de palavras",placeholder:"Ex: 26 (o alfabeto inteiro)"}
+    ],
+    prompt: (f) => `Crie um "Pasapalabra" educacional para ${f.materia} de ${f.curso} em: ${f.tema}. Total: ${f.num} palavras.
+Para CADA letra do alfabeto: definição clara que leva à resposta, a palavra/termo correto, dica extra se a definição for difícil. Formato: "Letra X: Com X... [definição]" → Resposta: [PALAVRA]. Inclui instruções do jogo e regras de pontuação sugeridas.`
+  },
+  'escape': {
+    fields: [
+      {id:'materia',label:"Disciplina e curso",placeholder:"Ex: História da Espanha 2º Bach."},
+      {id:'tema',label:"Conteúdo trabalhado",placeholder:"Ex: A Transição Espanhola, Segunda República..."},
+      {id:'narrativa',label:"Tema / Narrativa",placeholder:"Ex: Espiões na Guerra Fria, Detetives no futuro..."},
+      {id:'enigmas',label:"Número de enigmas",placeholder:"Ex: 5 enigmas"},
+      {id:'tiempo',label:"Duração",placeholder:"Ex: 50 minutos"}
+    ],
+    prompt: (f) => `Projete uma sala de fuga educacional completa para ${f.materia} sobre ${f.tema}. Narrativa: "${f.narrativa}". ${f.enigmas} enigmas. Tempo: ${f.tiempo}.
+Inclui: narrativa envolvente (2-3 parágrafos), para cada enigma: título, descrição narrativa, tipo de teste (criptografia/anagrama/cálculo/observação), conteúdo curricular trabalhado, instruções, solução/código, máximo 2 pistas Encerramento: missão cumprida + reflexão metacognitiva.`
+  },
+  'app-html': {
+    fields: [
+      {id:'tema',label:"Tema educacional",placeholder:"Ex: O sistema solar, verbos irregulares em inglês..."},
+      {id:'materia',label:"Disciplina e curso",placeholder:"Ex: Ciências Naturais 1º ESO"},
+      {id:'tipo',label:"Tipo de aplicativo",placeholder:"Questionário interativo / Flashcards / Simulador / Jogo / Mapa / Linha do tempo"},
+      {id:'edad',label:"Idade do aluno",placeholder:"Ex: 12-13 anos"},
+      {id:'contenido',label:"Conteúdo a incluir",placeholder:"Lista de conceitos, dúvidas ou dados específicos"},
+      {id:'idioma',label:"Idioma do aplicativo",placeholder:"Espanhol / Inglês / Valenciano"}
+    ],
+    prompt: (f) => `Atua como desenvolvedor web especialista em educação. Crie um aplicativo educacional interativo em HTML, CSS e JavaScript (UM ÚNICO arquivo .html) sobre "${f.tema}" para ${f.materia}.
+Tipo de aplicativo: ${f.tipo}. Idade do aluno: ${f.edad}. Linguagem: ${f.idioma}.
+Conteúdo a incluir: ${f.contenido}
+
+A aplicação deve: design atrativo e adequado à idade, feedback imediato aos alunos, pontos visíveis/contador de progresso, ser responsivo (mobile e tablet), funcionar sem internet (tudo incorporado no HTML), incluir a opção “ver resultados” no final. Entregue SOMENTE o código HTML completo, pronto para uso.`
+  },
+  'chatbot': {
+    fields: [
+      {id:'materia',label:"Disciplina e curso",placeholder:"Ex: Matemática 3º ESO"},
+      {id:'tema',label:"Tema do chatbot",placeholder:"Ex: equações de 2º grau"},
+      {id:'nombre',label:"Nome do chatbot",placeholder:"Ex: MathBot, ProfeIA, Sócrates..."},
+      {id:'objetivo',label:"Objetivo principal",placeholder:"Revisar / Resolver dúvidas / Preparar exame / Aprender"},
+      {id:'tono',label:"Tom do chatbot",placeholder:"Amigável e motivador / Socrático / Gamificado"}
+    ],
+    prompt: (f) => `Projete um chatbot educacional chamado "${f.nombre}" para ${f.materia} sobre o tema: ${f.tema}. Mirar: ${f.objetivo}. Tom: ${f.tono}.
+O chatbot deve: ter personalidade definida, avaliar o nível do usuário com 3 questões diagnósticas, adaptar-se, utilizar o método socrático (nunca dar a resposta direta), ter um loop: explicar > questionar > feedback > reforçar, no final resumir o que foi aprendido.
+Dê-me: PROMPT COMPLETO de sistema para configurar no ChatGPT/Claude/Gemini, 5 exemplos de conversação típica, instruções para alunos e como avaliar o uso do chatbot como atividade.`
+  },
+  'infografia': {
+    fields: [
+      {id:'tema',label:"Tema infográfico",placeholder:"Ex: O processo de fotossíntese, Direitos humanos..."},
+      {id:'materia',label:"Disciplina e curso",placeholder:"Ex: Biologia 4º ESO"},
+      {id:'formato',label:"Formato e ferramenta",placeholder:"Ex: Vertical para Canva/A3 para impressão"},
+      {id:'proposito',label:"Propósito",placeholder:"Explicar/Resumir/Comparar/Mostrar processo"}
+    ],
+    prompt: (f) => `Projete o conteúdo completo de um infográfico educacional sobre "${f.tema}" para ${f.materia}. Formatar: ${f.formato}. Propósito: ${f.proposito}.
+Para cada bloco (5-8): título do bloco (máx. 4 palavras), conteúdo resumido (2-3 frases curtas), sugestão de ícone/imagem, curiosidade ou estatística chocante, se aplicável. Inclui: título principal atraente, estrutura completa das seções temáticas com texto pronto para copiar no Canva, conclusão ou call to action final e fontes se necessário.`
+  },
+  'video': {
+    fields: [
+      {id:'tema',label:"Tema do vídeo",placeholder:"Ex: A Revolução Industrial, álgebra básica..."},
+      {id:'materia',label:"Disciplina e curso",placeholder:"Ex: História 4º ESO"},
+      {id:'minutos',label:"Duração (minutos)",placeholder:"Ex: 5 minutos / 8 minutos"},
+      {id:'formato',label:"Formato de vídeo",placeholder:"Explicativo / Contação de histórias / Documentário / Animado"},
+      {id:'narrador',label:"Tipo de narração",placeholder:"Locução / Professor para câmera / Personagem"}
+    ],
+    prompt: (f) => `Escreva o roteiro completo para um vídeo educacional ${f.minutos} minutos sobre "${f.tema}" para ${f.materia}. Formatar: ${f.formato}. Narrador: ${f.narrador}.
+Script em formato de coluna dupla (Texto narrado | Imagem/descrição da tela): INTRODUÇÃO (30 seg, gancho inicial), DESENVOLVIMENTO (blocos temáticos com transições), ENCERRAMENTO (resumo + reflexão). Inclui: lista de recursos visuais necessários, sugestão de música de fundo, 5 questões de compreensão para depois do vídeo e trabalhos de casa associados.`
+  },
+  'dua': {
+    fields: [
+      {id:'actividad',label:"Atividade original para adaptar",placeholder:"Descreva a atividade que você deseja adaptar com DUA"},
+      {id:'materia',label:"Disciplina e curso",placeholder:"Ex: Ciências Sociais 2º ESO"},
+      {id:'perfil',label:"Perfil do grupo (diversidade)",placeholder:"Ex: 2 ACINES, 1 altas habilidades, 3 TDAH..."}
+    ],
+    prompt: (f) => `Adapte a seguinte atividade aplicando os 3 princípios do DUA para ${f.materia}:
+ATIVIDADE ORIGINAL: ${f.actividad}
+Perfil do grupo: ${f.perfil}
+
+Para CADA princípio do DUA, dê-me 3 variantes específicas:
+1) REPRESENTAÇÃO: formatos alternativos, suportes visuais, glossário visual
+2) AÇÃO E EXPRESSÃO: opções de produto final (oral/escrito/digital/visual/prático), andaime, extensão para altas capacidades
+3) IMPLICAÇÃO: conexão com os interesses dos alunos, opções de escolha, estratégias de regulação de esforço`
+  },
+  'acines': {
+    fields: [
+      {id:'materia',label:"Disciplina e curso",placeholder:"Ex: Língua Espanhola 2º ESO"},
+      {id:'necesidades',label:"Necessidades educacionais do aluno",placeholder:"Ex: Dislexia, TDAH, Deficiência motora leve..."},
+      {id:'fortalezas',label:"Pontos fortes do aluno",placeholder:"Ex: Criatividade, compreensão oral, trabalho em equipe..."},
+      {id:'dificultades',label:"Principais dificuldades",placeholder:"Ex: Expressão escrita, atenção sustentada, organização..."}
+    ],
+    prompt: (f) => `Criar um Currículo Individual de Adaptação Não Significativo (ACINES) para um aluno com ${f.necesidades}  ${f.materia}. Pontos fortes: ${f.fortalezas}. Dificuldades: ${f.dificultades}.
+Inclui: critérios de avaliação que são mantidos (não modificados), medidas de acesso (apoio material e pessoal), adaptações em instrumentos de avaliação (mesmos critérios, formato diferente), adaptações metodológicas e organizacionais (agrupamento, tempo, materiais), objetivos prioritários para o trimestre, coordenação com Orientação e família, indicadores de progresso para revisão trimestral. Regulamento: Decreto 104/2018 e Despacho 20/2019 CV.`
+  },
+  'recuperacion': {
+    fields: [
+      {id:'materia',label:"Assunto",placeholder:"Ex: Matemática, Inglês, História..."},
+      {id:'curso',label:"Curso pendente",placeholder:"Ex: 2º ESO Matemática"},
+      {id:'num',label:"Número de alunos com declive",placeholder:"Ex: 5 alunos"},
+      {id:'meses',label:"Duração do plano",placeholder:"Ex: 3 meses / até junho"},
+      {id:'carga',label:"Carga horária semanal",placeholder:"Ex: máx. 30 minutos por semana em casa"}
+    ],
+    prompt: (f) => `Elabore um Plano de Recuperação completo para ${f.num} alunos que têm ${f.materia}. Duração: ${f.meses}pendentes. Carga de trabalho: ${f.carga}.
+Inclui: conteúdos mínimos essenciais para aprovação (conhecimentos básicos essenciais), calendário com marcos de monitorização, atividades de recuperação (fichas de trabalho autónomas + teste parcial + teste final), critérios de avaliação e classificação para recuperação, coordenação com as famílias (o que e quando são informados), recursos de apoio recomendados e comunicação formal às famílias.`
+  },
+  'eval-inicial': {
+    fields: [
+      {id:'materia',label:"Disciplina e curso",placeholder:"Ex: 1º Bacharelado em Física"},
+      {id:'contenidos',label:"Conteúdos planejados para serem detectados",placeholder:"Ex: Cinemática, forças, energia..."},
+      {id:'instrumentos',label:"Instrumentos preferidos",placeholder:"Ex: Teste + rotina de pensamento + questionário de interesse"}
+    ],
+    prompt: (f) => `Projete uma avaliação diagnóstica inicial para ${f.materia} no início do curso. Conteúdo a detectar: ${f.contenidos}. Ferramentas: ${f.instrumentos}.
+Para cada instrumento, forneça: as questões ou atividades completas, critérios de análise (como ler os resultados), como usar os dados para personalizar a programação e como comunicar os resultados aos alunos de forma positiva. Inclui também um questionário sobre interesses e métodos de estudo (anônimo) e uma rotina de pensamento “Eu sei/quero saber/vou aprender”.`
+  },
+  'normas': {
+    fields: [
+      {id:'curso',label:"Curso e estágio",placeholder:"Ex: 2º ESO A / 4º ESO B"},
+      {id:'edad',label:"Idade do grupo",placeholder:"Ex: 13-14 anos"},
+      {id:'caracteristicas',label:"Características do grupo",placeholder:"Ex: Grupo participativo mas muito barulhento, conflitos entre dois..."}
+    ],
+    prompt: (f) => `Ajude-me a co-criar normas de sala de aula e acordos de coexistência para meu grupo de ${f.curso} (${f.edad} anos). Características: ${f.caracteristicas}.
+Dê-me: técnica participativa (10-15 min) para os alunos proporem as suas regras, 8-10 regras escritas no positivo ("Sim, temos..."), texto do Contrato de Convivência pronto para personalizar e imprimir (com assinatura do aluno, professor e família), lista de consequências progressivas acordadas, dinâmicas para a 1ª semana e como revisá-las trimestralmente de forma participativa.`
+  },
+  'cancion': {
+    fields: [
+      {id:'materia',label:"Assunto",placeholder:"Ex: História, Biologia, Matemática, Inglês..."},
+      {id:'tema',label:"Conteúdo/tópico específico do plano de estudos",placeholder:"Ex: A célula, As Revoluções, As frações..."},
+      {id:'curso',label:"Curso e nível",placeholder:"Ex: 2º ESO, 1º Bacharelado, 4º Primário..."},
+      {id:'estilo',label:"Estilo musical",placeholder:"Pop, rap, reggaeton, baladas, rock, flamenco, música eletrônica..."},
+      {id:'idioma',label:'Idioma',placeholder:"Espanhol / Valenciano / Inglês / Bilíngue"}
+    ],
+    prompt: (f) => `Você é um compositor educacional especialista. Crie uma música pedagógica completa sobre o tema "${f.tema}" por ${f.materia} para alunos ${f.curso}.
+Estilo musical: ${f.estilo}. Linguagem: ${f.idioma}.
+A música deve:
+🎵 Ter estrutura: Intro / Versos (mínimo 3) / Refrão (memorável e repetitivo) / Ponte / Finalização
+🎓 Incluir todos os conceitos-chave da música de forma natural e memorável
+🧠 Utilize dispositivos mnemônicos (rimas, repetição, siglas cantadas)
+🎤 Tenha a LETRA COMPLETA pronta para cantar
+📐 Indique o ritmo/tempo sugerido e estrutura rítmica de cada seção
+✨ Adicionar nota didática: como usar esta música em aula (atividades auditivas, preenchimento de lacunas, karaokê, etc.)
+Conceitos do tema que devem aparecer na letra: [o mais importante de ${f.tema}]
+Tom: motivador, inclusivo e apropriado para ${f.curso}.`
+  },
+  'cancion-memo': {
+    fields: [
+      {id:'lista',label:"Lista de conceitos/dados para memorizar",placeholder:"Ex: Os 8 planetas, As comunidades autônomas, Verbos irregulares..."},
+      {id:'materia',label:"Disciplina e curso",placeholder:"Ex: Geografia 1º ESO"},
+      {id:'estilo',label:"Estilo musical",placeholder:"Rap, reggaeton, pop, música infantil, eletrônica..."},
+      {id:'idioma',label:'Idioma',placeholder:"Espanhol / Valenciano / Inglês"}
+    ],
+    prompt: (f) => `Crie uma música mnemônica com estilo ${f.estilo} para memorizar a seguinte lista em ${f.idioma}: ${f.lista}. Assunto: ${f.materia}A música mnemônica deve:
+🎯 Incluir TODOS os itens da lista na ordem correta ou em grupos lógicos
+. 🎵 Use rima, ritmo e repetição para facilitar a memorização
+✨ COMPLETE a letra com todos os elementos integrados naturalmente
+📝 Adicione truque adicional de memorização (acrônimo, imagem mental, etc.)
+🎤 Refrão muito cativante que repete os conceitos mais importantes
+📚 Nota para o professor: "preencha a letra com o exercício de lacunas" para praticar`
+  },
+  'cancion-ingles': {
+    fields: [
+      {id:'topic',label:"Tópico / Ponto gramatical",placeholder:"Ex: Past Simple, Phrasal verbs, Vocabulário: comida, Meio ambiente..."},
+      {id:'level',label:"Nível CEFR",placeholder:'A1 / A2 / B1 / B2'},
+      {id:'year',label:"grupo do ano",placeholder:"Ex: 2º ESO / 1º Bacharelado"},
+      {id:'style',label:"Estilo musical",placeholder:"Pop, rap, R&B, folk, reggae, rock..."}
+    ],
+    prompt: (f) => `Crie uma música educacional completa em inglês sobre "${f.topic}"para ${f.year} no ${f.level} nível CEFR. Estilo: ${f.style}.
+A música deve:
+🎵 Letra completa: Intro / 3+ Verses / Chorus / Bridge / Outro
+🎓 Incorpore naturalmente todo o idioma/vocabulário alvo: ${f.topic}
+🧠 Use repetição, rima e ritmo para ajudar na aquisição
+📐 Marque sílabas tônicas e padrão de ritmo
+🎤 O refrão deve ser cativante e reforçar o ponto-chave do idioma
+✨ Notas de ensino: versão da atividade para preencher lacunas (palavras-chave em branco), atividade de karaokê, ideias de chamada e resposta
+📊 Lista de vocabulário da música com traduções
+♿ Versão simplificada para alunos de nível inferior`
+  },
+  'unidad-html': {
+    fields: [
+      {id:'materia',label:"Assunto",placeholder:"Ex: Ciências Naturais, História, Inglês, Matemática..."},
+      {id:'titulo',label:"Título da unidade",placeholder:"Ex: A célula e suas partes, O Renascimento, Presente Perfeito..."},
+      {id:'curso',label:"Curso e estágio",placeholder:"Ex: 3º ESO, 1º Bacharelado, 2º ESO"},
+      {id:'sesiones',label:"Número de sessões",placeholder:"Ex: 8 sessões de 55 minutos"},
+      {id:'contenidos',label:"Conteúdo / Principais conhecimentos básicos",placeholder:"Ex: Membrana, núcleo, DNA, mitocôndrias, citoplasma... (liste os principais)"},
+      {id:'productos',label:"Atividades e produtos a incluir",placeholder:"Ex: Mapa conceitual, questionário, prática de laboratório, projeto criativo..."}
+    ],
+    prompt: (f) => `Atue como um desenvolvedor web educacional especializado Crie uma UNIDADE DIDÁTICA COMPLETA de "${f.titulo}" para ${f.materia} de ${f.curso} em formato HTML completo (um único arquivo .html) pronto para carregar no Aules ou compartilhar com os alunos.
+A unidade possui ${f.sesiones} e deve incluir estes conteúdos: ${f.contenidos}
+Atividades e produtos: ${f.productos}
+
+O arquivo HTML deve incluir:
+📚 SEÇÃO 1: Capa atrativa com: título, matéria, curso, objetivos de aprendizagem
+📖 SEÇÃO 2: Conteúdos teóricos apresentados com:
+- Texto explicativo claro e adaptado ao nível
+- "Importante!" e "Você sabia...?"
+- Imagens descritivas (use URLs Unsplash ou descreva o espaço reservado)
+- Diagramas ou tabelas comparativas onde for útil
+🎯 SEÇÃO 3: Atividades interativas (mínimo 3):
+- Questionário de compreensão (correção automática em JavaScript)
+- Corresponder ou completar atividade
+- Reflexão ou criação de tarefa correspondente
+📊 SEÇÃO 4: Rubrica de avaliação (tabela HTML bem formatada)
+🔗 SEÇÃO 5: Recursos adicionais e bibliografia
+Design: usa CSS interno, cores atraentes e apropriadas para ${f.curso}, totalmente responsivo.
+ENTREGA APENAS o código HTML completo, pronto para salvar como .html e abrir no navegador.`
+  },
+  'unidad-fp': {
+    fields: [
+      {id:'modulo',label:"Módulo profissional",placeholder:"Ex: Sistemas de Informática, Atendimento ao Cliente..."},
+      {id:'titulo',label:"Título da Unidade de Trabalho",placeholder:"Ex: Instalação e configuração de redes LAN"},
+      {id:'ciclo',label:"Ciclo e nível",placeholder:"Ex: ASIR – Grau Superior"},
+      {id:'horas',label:"Horas UTC",placeholder:"Ex: 20 horas"},
+      {id:'ras',label:"Resultados de aprendizagem avaliados",placeholder:"Ex: RA2.1, RA2.2 – Configurar redes locais..."},
+      {id:'tipo',label:"Tipo de atividades",placeholder:"Ex: Workshop prático, casos reais, simulações do Packet Tracer..."}
+    ],
+    prompt: (f) => `Crie uma UNIDADE DE TRABALHO COMPLETA em HTML (um único arquivo .html) para o módulo "${f.modulo}"do ciclo ${f.ciclo}. Qualificação: "${f.titulo}". Horas: ${f.horas}. Resultados de aprendizagem: ${f.ras}.
+O HTML deve incluir:
+📋 Capa: título, módulo, ciclo, duração, RAs avaliados
+📖 Conteúdo técnico: explicações claras com exemplos reais de setores, diagramas, tabelas, código de exemplo se aplicável
+🔧 Prática guiada: passo a passo detalhado para ${f.tipo}
+✅ Checklist do aluno (checklist de prática)
+📊 Tabela de avaliação por critérios RA
+🔗 Recursos do setor: sites, manuais, ferramentas recomendadas
+💡 Conexão com o ambiente real de trabalho: onde isso é utilizado na empresa?
+Design profissional e técnico. Responsivo. ENTREGA apenas o código HTML completo.`
+  },
+  'pack-tema': {
+    fields: [
+      {id:'materia',label:"Disciplina e curso",placeholder:"Ex: Biologia 4º ESO"},
+      {id:'tema',label:"Tópico ou unidade",placeholder:"Ex: Genética e herança biológica"},
+      {id:'sesiones',label:"Nº sessões disponíveis",placeholder:"Ex: 6 sessões de 55 minutos"},
+      {id:'incluir',label:"O que você deseja incluir no pacote?",placeholder:"Ex: teoria + quiz + sala de fuga + música + rubrica + infográfico"}
+    ],
+    prompt: (f) => `Crie um PACOTE DE RECURSOS COMPLETO em "${f.tema}" para ${f.materia}  ${f.sesiones}.
+O pack deverá incluir, num ÚNICO arquivo HTML interativo com menu de navegação:
+1. 📖 TEORIA RESUMO: texto explicativo claro com os conceitos essenciais
+2. 🎯 ATIVIDADES INTERATIVAS: questionário autocorrigido (mínimo 10 questões)
+3. 🎪 ELEMENTO DE JOGO: mini escape room OU senha OU bingo sobre o tema
+4. 🎵 MNEMOTECNICA DE MÚSICA/RAP: letra completa sobre o tema
+5. 📊 RUBRICA DE AVALIAÇÃO: tabela com critérios e 4 níveis de conquista
+6. 🗺️ INFOGRÁFICO INTEGRADO: esboço visual do tema (HTML/CSS puro)
+Cada seção deve estar em uma aba ou seção navegável do mesmo HTML
+Design: moderno, colorido, responsivo, mais Jakarta Sans ou similar
+O pacote inclui: ${f.incluir}
+ENTREGA apenas o código HTML completo. do pacote`
+  }
+};
+
+
+// ═══════════ BUILD FORMS ═══════════
+function buildForms(){
+  Object.keys(TEMPLATES).forEach(id => {
+    const t = TEMPLATES[id];
+    const container = document.getElementById('form-'+id);
+    if(!container) return;
+    t.fields.forEach(f => {
+      const div = document.createElement('div');
+      div.className = 'field-group';
+      div.innerHTML = `
+        <label class="field-label" for="field-${id}-${f.id}"><i class="fas fa-tag text-indigo-400 text-xs"></i> ${f.label}
+        </label><input type="text" id="field-${id}-${f.id}" class="entrada de campo" placeholder="${f.placeholder}" autocomplete="off">
+      `;
+      container.appendChild(div);
+    });
+  });
+}
+
+// ═══════════ GET VALUES ═══════════
+function getValues(id){
+  const t = TEMPLATES[id];
+  const values = {};
+  t.fields.forEach(f => {
+    const el = document.getElementById('field-'+id+'-'+f.id);
+    values[f.id] = el ? (el.value.trim() || el.placeholder) : '';
+  });
+  return values;
+}
+
+// ═══════════ LAUNCH ═══════════
+function launch(id){
+  const values = getValues(id);
+  const t = TEMPLATES[id];
+  const prompt = t.prompt(values);
+  const url = AI_URLS[globalAI] + encodeURIComponent(prompt);
+  window.open(url, '_blank');
+  showToast("🚀 Abertura " + globalAI.charAt(0).toUpperCase()+globalAI.slice(1) + '...');
+}
+
+// ═══════════ PREVIEW ═══════════
+function previewPrompt(id){
+  const values = getValues(id);
+  const t = TEMPLATES[id];
+  const prompt = t.prompt(values);
+  const box = document.getElementById('preview-'+id);
+  if(!box) return;
+  box.classList.toggle('show');
+  box.textContent = prompt;
+}
+
+// ═══════════ TOAST ═══════════
+function showToast(msg){
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), 2500);
+}
+
+// ═══════════ SCROLL PROGRESS ═══════════
+window.addEventListener('scroll',()=>{
+  const p=document.getElementById('scroll-progress');
+  const pct=(window.scrollY/(document.body.scrollHeight-window.innerHeight))*100;
+  p.style.width=pct+'%';
+  const btn=document.getElementById('back-to-top');
+  window.scrollY>400?btn.classList.add('visible'):btn.classList.remove('visible');
+  updateNav();
+});
+document.getElementById('back-to-top').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+// ═══════════ ENTRANCE ANIMATIONS ═══════════
+const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in-view')}),{threshold:.05});
+document.querySelectorAll('.fade-in').forEach(s=>io.observe(s));
+
+// NAV ACTIVE
+function updateNav(){
+  document.querySelectorAll("aparte nav a").forEach(l=>l.classList.remove('active'));
+  const ids=['#ia1','#ia2','#ia3','#ia4','#ia5','#ia6','#ia7','#ia8','#ia9','#ia10'];
+  let current='';
+  ids.forEach(id=>{const el=document.querySelector(id);if(el&&window.scrollY>=el.offsetTop-200)current=id;});
+  if(current){const l=document.querySelector(`aparte nav a[href="${current}"]`);if(l)l.classList.add('active');}
+}
+
+// MOBILE SIDEBAR
+document.getElementById('sidebar-toggle').addEventListener('click',()=>{
+  document.querySelector('aside').classList.add('sidebar-open');
+  document.getElementById('sidebar-backdrop').classList.add('active');
+  document.body.style.overflow='hidden';
+});
+document.getElementById('sidebar-backdrop').addEventListener('click',()=>{
+  document.querySelector('aside').classList.remove('sidebar-open');
+  document.getElementById('sidebar-backdrop').classList.remove('active');
+  document.body.style.overflow='';
+});
+
+// INIT
+buildForms();
+updateNav();
+console.log("%cAutoDocente CV 🤖 | Aplicativo interativo de IA",'color:#6366f1;font-weight:800;font-size:14px;');
+</script>
+  <script src="assets/portal-nav.js"></script>
+</body>
+</html>

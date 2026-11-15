@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Módulo 6 — Planejamento Didático | EDOCENTIA</title>
+<meta name="description" content="Gera programas de ensino completos alinhados com LOMLOE e regulamentações regionais. Insira o conteúdo e as leis e a IA escreve sua programação pronta para revisão.">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b}
+#scroll-progress{position:fixed;top:0;left:0;width:0;height:4px;background:linear-gradient(90deg,#f97316,#fb923c,#fbbf24);z-index:9999}
+.hero-section{background-image:linear-gradient(135deg,rgba(124,45,18,.93) 0%,rgba(154,52,18,.9) 60%,rgba(194,65,12,.85) 100%),url('https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=2000&auto=format&fit=crop');background-size:cover;background-position:center;background-attachment:fixed}
+.hero-shimmer{background:linear-gradient(90deg,#fff 40%,rgba(255,255,255,.6) 50%,#fff 60%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 4s linear infinite}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+.card-pro{background:#fff;border-radius:1.25rem;box-shadow:0 4px 20px rgba(0,0,0,.05);border:1px solid rgba(0,0,0,.04);transition:.3s}
+.card-pro:hover{transform:translateY(-2px);box-shadow:0 12px 35px rgba(0,0,0,.09)}
+aside nav a{transition:.25s;color:#475569;border-left:3px solid transparent;display:flex;align-items:center;gap:.6rem;padding:.6rem .9rem;border-radius:.75rem;font-size:.85rem;font-weight:500;text-decoration:none}
+aside nav a:hover{background:linear-gradient(90deg,rgba(249,115,22,.1),transparent)!important;color:#c2410c;border-left-color:#f97316;padding-left:1.2rem;font-weight:700}
+#sidebar-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:999;background:linear-gradient(135deg,#f97316,#fb923c);color:#fff;border:none;width:2.8rem;height:2.8rem;border-radius:.9rem;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer}
+#sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(4px);z-index:490}
+@media(max-width:1023px){#sidebar-toggle{display:flex}aside{position:fixed!important;top:0;left:0;height:100dvh!important;width:85vw!important;max-width:340px!important;z-index:500;transform:translateX(-110%);transition:.35s;overflow-y:auto}aside.sidebar-open{transform:translateX(0)}#sidebar-backdrop.active{display:block}#main-content{width:100%!important}}
+details summary{user-select:none;cursor:pointer;list-style:none;outline:none}
+details summary::-webkit-details-marker{display:none}
+details summary .chev{transition:.3s}
+details[open] summary .chev{transform:rotate(180deg)}
+.field-label{display:block;font-size:.8rem;font-weight:700;color:#c2410c;margin-bottom:.35rem}
+.field-input{width:100%;border:1.5px solid #fed7aa;border-radius:.65rem;padding:.55rem .85rem;font-size:.85rem;color:#1e293b;font-family:'Plus Jakarta Sans',sans-serif;background:#fff7ed;transition:.2s;outline:none}
+.field-input:focus{border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,.12);background:#fff}
+.field-input::placeholder{color:#94a3b8}
+textarea.field-input{resize:vertical;min-height:80px}
+.field-group{margin-bottom:1rem}
+.gen-btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.6rem;border-radius:.85rem;font-weight:700;font-size:.9rem;cursor:pointer;transition:.25s;border:none;width:100%;margin-top:.5rem}
+.gen-btn-orange{background:linear-gradient(135deg,#f97316,#fb923c);color:#fff;box-shadow:0 4px 16px rgba(249,115,22,.35)}
+.gen-btn-orange:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(249,115,22,.5)}
+.gen-btn-amber{background:linear-gradient(135deg,#d97706,#fbbf24);color:#fff;box-shadow:0 4px 16px rgba(217,119,6,.35)}
+.gen-btn-amber:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(217,119,6,.5)}
+.prompt-result{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:.75rem;padding:1.25rem;font-size:.8rem;line-height:1.7;color:#475569;white-space:pre-wrap;max-height:300px;overflow-y:auto;display:none;margin-top:.75rem}
+.prompt-result.show{display:block}
+.copy-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1.1rem;background:rgba(249,115,22,.1);border:1px dashed rgba(249,115,22,.4);border-radius:.6rem;color:#c2410c;font-size:.78rem;font-weight:700;cursor:pointer;transition:.2s;margin-top:.5rem}
+.copy-btn:hover{background:rgba(249,115,22,.18);border-style:solid}
+.copy-btn.copied{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.4);color:#059669}
+.prompt-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:1rem;padding:1.5rem;transition:.3s;margin-bottom:1rem}
+.prompt-card:hover{border-color:rgba(249,115,22,.3);box-shadow:0 8px 30px rgba(249,115,22,.09)}
+.fade-in{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s cubic-bezier(.4,0,.2,1)}
+.fade-in.in-view{opacity:1;transform:translateY(0)}
+#toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(80px);background:#1e293b;color:#fff;padding:.75rem 1.5rem;border-radius:1rem;font-size:.85rem;font-weight:600;z-index:9999;transition:.3s;display:flex;align-items:center;gap:.5rem}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#back-to-top{position:fixed;bottom:2rem;right:2rem;width:3rem;height:3rem;background:linear-gradient(135deg,#f97316,#fb923c);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;pointer-events:none;transform:translateY(20px);transition:.3s;z-index:998;border:none}
+#back-to-top.visible{opacity:1;pointer-events:all;transform:translateY(0)}
+.cat-icon{width:2.5rem;height:2.5rem;border-radius:.9rem;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.normativa-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.25rem .75rem;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.25);border-radius:20px;font-size:.7rem;font-weight:700;color:#c2410c}
+</style>
+  <link rel="stylesheet" href="../assets/portal-nav.css">
+</head>
+<body class="antialiased">
+<div id="scroll-progress"></div>
+<button id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+<div id="sidebar-backdrop"></div>
+<button id="back-to-top"><i class="fas fa-arrow-up"></i></button>
+<div id="toast"><i class="fas fa-file-alt text-orange-400"></i> <span id="toast-msg">Pronto!</span></div>
+
+<div class="flex min-h-screen">
+<aside class="w-64 flex-shrink-0 bg-white border-r border-slate-100 shadow-sm sticky top-0 h-screen overflow-y-auto z-50">
+  <div class="p-5 border-b border-slate-100">
+    <div class="flex items-center gap-2.5 mb-1">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white shadow text-base">📋</div>
+      <div><div class="font-extrabold text-slate-800 text-sm leading-tight">Planejamento Didático</div><div class="text-xs text-slate-400">Módulo 06 · EDOCENTIA</div></div>
+    </div>
+  </div>
+  <nav class="p-3 space-y-0.5">
+    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest px-2 pt-3 pb-1">Peças do módulo</p>
+    <a href="#parte-1"><i class="fas fa-file-alt w-4 text-orange-500"></i> Programação ESO/Bach</a>
+    <a href="#parte-2"><i class="fas fa-cogs w-4 text-amber-500"></i> Programação FP</a>
+    <a href="#parte-3"><i class="fas fa-calendar w-4 text-red-500"></i> Tempo</a>
+    <a href="#parte-4"><i class="fas fa-list-check w-4 text-blue-500"></i> Seções específicas</a>
+    <a href="#parte-5"><i class="fas fa-balance-scale w-4 text-violet-500"></i> Regulamentos de referência</a>
+    <hr class="my-2 border-slate-100">
+    <a href="../index.html"><i class="fas fa-home w-4 text-slate-400"></i> Homepage EDOCENTIA</a>
+    <a href="../app-ia.html"><i class="fas fa-robot w-4 text-violet-500"></i> Aplicativo interativo de IA</a>
+  </nav>
+  <div class="p-3 mx-3 mb-3 rounded-xl bg-orange-50 border border-orange-100">
+    <div class="text-xs font-bold text-orange-700 mb-1">⚠️ Aviso importante</div>
+    <div class="text-xs text-slate-500 leading-relaxed">Os prompts geram um rascunho completo. <strong>Sempre revise e adapte a programação do</strong> antes de apresentá-la oficialmente.</div>
+  </div>
+</aside>
+
+<main id="main-content" class="flex-1 min-w-0">
+<section class="hero-section text-white py-16 px-8 md:px-14">
+  <div class="max-w-4xl">
+    <a href="../index.html" class="inline-flex items-center gap-2 text-white/70 hover:text-white text-xs font-semibold mb-5 transition-colors"><i class="fas fa-arrow-left"></i> Voltar para EDOCENTIA</a>
+    <div class="inline-flex items-center gap-2 bg-white/15 border border-white/25 rounded-full px-4 py-1.5 text-xs font-semibold mb-4 backdrop-blur-sm">
+      <i class="fas fa-book-open text-yellow-300"></i> Módulo 06 — Planejamento Curricular Jurídico
+    </div>
+    <h1 class="text-3xl md:text-5xl font-extrabold leading-tight mb-3 hero-shimmer">Gerador<br>Planejamento Didático</h1>
+    <p class="text-base text-white/85 max-w-2xl leading-relaxed mb-4">Insira seu conteúdo e a regulamentação aplicável. A IA elabora seu cronograma completo — com todas as seções jurídicas — pronto para sua análise e apresentação à equipe de gestão.</p>
+    <div class="flex flex-wrap gap-2 mb-5">
+      <span class="normativa-badge">📜 LOMLOE</span>
+      <span class="normativa-badge">🏛️ Decreto 107/2022</span>
+      <span class="normativa-badge">🎓 Decreto 108/2022</span>
+      <span class="normativa-badge">⚙️ FP 2024-2025</span>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <a href="#parte-1" class="bg-white text-orange-700 font-bold px-5 py-2.5 rounded-xl text-sm shadow hover:-translate-y-0.5 transition-all">📋 ESO / Bacharelado</a>
+      <a href="#parte-2" class="bg-white/15 border border-white/30 text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-white/25 transition-all">⚙️FP</a>
+      <a href="#parte-4" class="bg-white/15 border border-white/30 text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-white/25 transition-all">✍️ Seções</a>
+    </div>
+  </div>
+</section>
+
+<div class="max-w-5xl mx-auto px-5 md:px-10 py-10 space-y-8">
+
+<!-- INTRO -->
+<div class="fade-in bg-amber-50 border border-amber-200 rounded-2xl p-6">
+  <div class="flex items-start gap-4">
+    <div class="text-3xl">📌</div>
+    <div>
+      <h2 class="font-bold text-amber-800 mb-2">Como funciona este módulo?</h2>
+      <p class="text-sm text-amber-700 leading-relaxed">Preencha os campos com suas informações reais: assunto, nível, conteúdos, regulamentos regionais. O prompt gerado dará à IA todas as informações para escrever um programa de ensino completo e estruturado. <strong>Você revisa e ajusta</strong> — A IA faz 80% do trabalho.</p>
+      <div class="mt-3 flex flex-wrap gap-2">
+        <span class="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-1 rounded-full">⏱ Economize 15-20 horas por programação</span>
+        <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2 py-1 rounded-full">📋 Estrutura jurídica completa</span>
+        <span class="bg-red-100 text-red-700 text-xs font-bold px-2 py-1 rounded-full">🔍 Sempre verifique antes de enviar</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PARTE 1: PROGRAMACIÓN ESO/BACH -->
+<div id="parte-1" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100" open>
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-orange-100 text-orange-700">📋</div>
+    <div><div class="font-bold text-slate-800">Parte 1 — Planejamento Didático do ESO e do Bacharelado</div><div class="text-xs text-slate-400">LOMLOE · Decreto 107/2022 (ESO CV) · Decreto 108/2022 (Bach CV)</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+
+<div class="prompt-card">
+  <div class="font-bold text-slate-700 text-sm mb-4">📋 Planejamento Didático ESO / Bacharelado Completa</div>
+  <div class="grid md:grid-cols-2 gap-3">
+    <div class="field-group"><label class="field-label">📚 Assunto e nível</label><input type="text" class="field-input" id="prog-materia" placeholder="Ex: Língua e Literatura Espanhola, 3º ESO"></div>
+    <div class="field-group"><label class="field-label">🏛️ Palco e comunidade</label><select class="field-input" id="prog-etapa"><option selected>ESO - Comunidade Valenciana</option><option>Bacharelado - Comunidade Valenciana</option><option>ESO - Status (LOMLOE genérico)</option><option>Bacharelado - Estadual</option></select></div>
+    <div class="field-group"><label class="field-label">🎓 Centro educacional (tipo)</label><select class="field-input" id="prog-centro"><option selected>IES pública</option><option>Escola concertada</option><option>Centro privado</option></select></div>
+    <div class="field-group"><label class="field-label">📅 Ano letivo</label><input type="text" class="field-input" id="prog-curso" placeholder="2025-2026"></div>
+    <div class="field-group md:col-span-2"><label class="field-label">📋 Conhecimentos básicos / Conteúdos (cole aqui o currículo ou resuma)</label><textarea class="field-input" id="prog-saberes" placeholder="Cole os conhecimentos básicos do decreto, ou resuma: Ex: Bloco A - Comunicação: leitura, escrita, expressão oral... Bloco B - Educação literária..."></textarea></div>
+    <div class="field-group"><label class="field-label">🎯 Competências específicas (códigos CE)</label><textarea class="field-input" id="prog-ce" placeholder="Ex: CE.LCL.1 Expressão oral / CE.LCL.2 Compreensão de leitura / CE.LCL.3 Produção..."></textarea></div>
+    <div class="field-group"><label class="field-label">📊 Critérios de avaliação (códigos)</label><textarea class="field-input" id="prog-criterios" placeholder="Ex: CE.LCL.1.1, CE.LCL.1.2 / Ou cole os critérios do decreto..."></textarea></div>
+    <div class="field-group"><label class="field-label">📅 Horário semanal</label><input type="text" class="field-input" id="prog-horas" placeholder="Ex: 3 horas por semana"></div>
+    <div class="field-group"><label class="field-label">🛠️ Metodologia principal</label><select class="field-input" id="prog-met"><option selected>Misto (expositivo + ativo)</option><option>ABP principalmente</option><option>Sala de Aula Invertida</option><option>Cooperativa</option><option>Gamificação</option></select></div>
+    <div class="field-group md:col-span-2"><label class="field-label">📍Contexto centro/grupo (opcional)</label><input type="text" class="field-input" id="prog-contexto" placeholder="Ex: IES em zona rural, 2 turmas de 25 alunos, alta diversidade cultural, PROA+..."></div>
+  </div>
+  <button class="gen-btn gen-btn-orange" onclick="generateAndShow('prog-completa')"><i class="fas fa-file-alt"></i> Gerar programação ESO/Bach completa</button>
+  <div class="prompt-result" id="result-prog-completa"></div>
+  <button class="copy-btn" id="copy-prog-completa" onclick="copyPrompt('prog-completa')" style="display:none"><i class="fas fa-copy"></i> Solicitação de cópia</button>
+</div>
+
+</div>
+</details>
+</div>
+
+<!-- PARTE 2: PROGRAMACIÓN FP -->
+<div id="parte-2" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-amber-100 text-amber-700">⚙️</div>
+    <div><div class="font-bold text-slate-800">Parte 2 - Programação do Módulo FP</div><div class="text-xs text-slate-400">Treinamento Vocacional · Básico · Grau Intermediário · Grau Superior</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+
+<div class="prompt-card">
+  <div class="font-bold text-slate-700 text-sm mb-4">⚙️ Módulo FP Programação</div>
+  <div class="grid md:grid-cols-2 gap-3">
+    <div class="field-group"><label class="field-label">🎓 Ciclo de formação e licenciatura</label><input type="text" class="field-input" id="fp-ciclo" placeholder="Ex: CF Licenciatura Média em Administração e Finanças"></div>
+    <div class="field-group"><label class="field-label">📚 Módulo profissional</label><input type="text" class="field-input" id="fp-modulo" placeholder="Ex: Comunicação Empresarial / Automação de escritório / etc."></div>
+    <div class="field-group"><label class="field-label">📋 Resultados de aprendizagem (RA)</label><textarea class="field-input" id="fp-ra" placeholder="Copie o RA do Decreto do Título Real ou resuma-os..."></textarea></div>
+    <div class="field-group"><label class="field-label">🎯 Critérios de avaliação (EC) por RA</label><textarea class="field-input" id="fp-ce" placeholder="CE do módulo conforme decreto do título..."></textarea></div>
+    <div class="field-group"><label class="field-label">⏱️ Horário do módulo</label><input type="text" class="field-input" id="fp-horas" placeholder="Ex: 160 horas no curso"></div>
+    <div class="field-group"><label class="field-label">🏛️ Decreto de título</label><input type="text" class="field-input" id="fp-decreto" placeholder="Ex: RD 1584/2011 / Decreto 27/2024 CV..."></div>
+  </div>
+  <button class="gen-btn gen-btn-orange" onclick="generateAndShow('prog-fp')"><i class="fas fa-cogs"></i> Gerar programação FP</button>
+  <div class="prompt-result" id="result-prog-fp"></div>
+  <button class="copy-btn" id="copy-prog-fp" onclick="copyPrompt('prog-fp')" style="display:none"><i class="fas fa-copy"></i> Solicitação de cópia</button>
+</div>
+
+</div>
+</details>
+</div>
+
+<!-- PARTE 3: TEMPORALIZACIÓN -->
+<div id="parte-3" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-red-100 text-red-700">📅</div>
+    <div><div class="font-bold text-slate-800">Parte 3 - Tempo e sequenciamento de unidades</div><div class="text-xs text-slate-400">Planejamento trimestral completo com unidades de ensino</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+
+<div class="prompt-card">
+  <div class="font-bold text-slate-700 text-sm mb-3">📅 Tempo trimestral de todo o assunto</div>
+  <div class="grid md:grid-cols-2 gap-3">
+    <div class="field-group"><label class="field-label">📚 Assunto, nível e horas/semana</label><input type="text" class="field-input" id="temp-materia" placeholder="Ex: Física 2º Bach, 4h/semana"></div>
+    <div class="field-group"><label class="field-label">📋 Unidades curriculares ou blocos</label><textarea class="field-input" id="temp-unidades" placeholder="Liste as unidades ou blocos temáticos: Bloco 1 - Mecânica, Bloco 2 - Termodinâmica..."></textarea></div>
+    <div class="field-group"><label class="field-label">📅 Semanas de ensino por trimestre</label><input type="text" class="field-input" id="temp-semanas" placeholder="Ex: T1: 12 semanas / T2: 11 semanas / T3: 8 semanas"></div>
+    <div class="field-group"><label class="field-label">🎯 Critérios de distribuição</label><select class="field-input" id="temp-criterio"><option selected>Aumentando a complexidade</option><option>Seguindo o decreto curricular</option><option>Por blocos temáticos</option><option>Por projetos integrativos/SA</option></select></div>
+  </div>
+  <button class="gen-btn gen-btn-amber" onclick="generateAndShow('temporalizacion')"><i class="fas fa-calendar"></i> Gerar timing</button>
+  <div class="prompt-result" id="result-temporalizacion"></div>
+  <button class="copy-btn" id="copy-temporalizacion" onclick="copyPrompt('temporalizacion')" style="display:none"><i class="fas fa-copy"></i> Solicitação de cópia</button>
+</div>
+
+</div>
+</details>
+</div>
+
+<!-- PARTE 4: APARTADOS ESPECÍFICOS -->
+<div id="parte-4" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-blue-100 text-blue-700">✍️</div>
+    <div><div class="font-bold text-slate-800">Parte 4 — Seções Específicas de Programação</div><div class="text-xs text-slate-400">Atenção à diversidade, avaliação, atividades complementares, TIC...</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+
+<div class="grid md:grid-cols-2 gap-4">
+
+<div class="prompt-card">
+  <div class="text-xl mb-2">♿ DUA e Atenção à Diversidade</div>
+  <div class="field-group"><label class="field-label">📚 Assunto e nível</label><input type="text" class="field-input" id="dua-materia" placeholder="Ex: Matemática 2º ESO"></div>
+  <div class="field-group"><label class="field-label">👥 Alunos com necessidades específicas presentes em seu grupo</label><input type="text" class="field-input" id="dua-nee" placeholder="Ex: 2 ACINEES, 1 com altas habilidades, 3 com dislexia..."></div>
+  <button class="gen-btn gen-btn-orange" style="margin-top:.5rem" onclick="generateAndShow('apartado-dua')"><i class="fas fa-hands-helping"></i> Gerar seção DUA</button>
+  <div class="prompt-result" id="result-apartado-dua"></div>
+  <button class="copy-btn" id="copy-apartado-dua" onclick="copyPrompt('apartado-dua')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+</div>
+
+<div class="prompt-card">
+  <div class="text-xl mb-2">📊 Critérios de qualificação e avaliação</div>
+  <div class="field-group"><label class="field-label">📚 Assunto</label><input type="text" class="field-input" id="cal-materia2" placeholder="Ex: Inglês 4º ESO"></div>
+  <div class="field-group"><label class="field-label">🎯 Instrumentos que você costuma usar</label><input type="text" class="field-input" id="cal-instrumentos" placeholder="Ex: exame 50%, trabalho 30%, atitude 20%..."></div>
+  <button class="gen-btn gen-btn-amber" style="margin-top:.5rem" onclick="generateAndShow('apartado-calificacion')"><i class="fas fa-star-half-alt"></i> Gerar critérios</button>
+  <div class="prompt-result" id="result-apartado-calificacion"></div>
+  <button class="copy-btn" id="copy-apartado-calificacion" onclick="copyPrompt('apartado-calificacion')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+</div>
+
+<div class="prompt-card">
+  <div class="text-xl mb-2">🌍 Elementos Transversais</div>
+  <div class="field-group"><label class="field-label">📚 Assunto e nível</label><input type="text" class="field-input" id="trans-materia" placeholder="Ex: Ciências Sociais 3º ESO"></div>
+  <button class="gen-btn gen-btn-orange" style="margin-top:.5rem" onclick="generateAndShow('apartado-transversal')"><i class="fas fa-globe"></i> Gerar transversais</button>
+  <div class="prompt-result" id="result-apartado-transversal"></div>
+  <button class="copy-btn" id="copy-apartado-transversal" onclick="copyPrompt('apartado-transversal')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+</div>
+
+<div class="prompt-card">
+  <div class="text-xl mb-2">🤝 Contribuição para o perfil de saída</div>
+  <div class="field-group"><label class="field-label">📚 Assunto</label><input type="text" class="field-input" id="perfil-materia2" placeholder="Ex: Física e Química 4º ESO"></div>
+  <button class="gen-btn gen-btn-amber" style="margin-top:.5rem" onclick="generateAndShow('apartado-perfil')"><i class="fas fa-user-graduate"></i> Gerar perfil de saída</button>
+  <div class="prompt-result" id="result-apartado-perfil"></div>
+  <button class="copy-btn" id="copy-apartado-perfil" onclick="copyPrompt('apartado-perfil')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+</div>
+
+</div>
+
+</div>
+</details>
+</div>
+
+<!-- PARTE 5: NORMATIVA -->
+<div id="parte-5" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-violet-100 text-violet-700">⚖️</div>
+    <div><div class="font-bold text-slate-800">Parte 5 - Regulamentos de referência</div><div class="text-xs text-slate-400">Marco legal para incluir em sua programação (CV e Estadual)</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+
+<div class="bg-violet-50 border border-violet-100 rounded-xl p-5 text-sm">
+  <h3 class="font-bold text-violet-800 mb-3">📋 Marco regulatório estadual e regional (CV)</h3>
+  <div class="grid md:grid-cols-2 gap-4">
+    <div>
+      <div class="font-semibold text-violet-700 mb-2">🇪🇸 Regulamentos Estaduais</div>
+      <ul class="space-y-1 text-xs text-slate-600">
+        <li>• LOMLOE — Lei Orgânica 3/2020 de 29 de dezembro</li>
+        <li>• RD 217/2022 (organização e ensinamentos mínimos do ESO)</li>
+        <li>• RD 243/2022 (Perfil de produção e competências principais)</li>
+        <li>• RD 157/2022 (Primário)</li>
+        <li>• RD 659/2023 (Regulamento FP)</li>
+        <li>• Lei Orgânica 5/2002 (FP)</li>
+      </ul>
+    </div>
+    <div>
+      <div class="font-semibold text-orange-700 mb-2">🌅 Regulamento da Comunidade Valenciana</div>
+      <ul class="space-y-1 text-xs text-slate-600">
+        <li>• Decreto 107/2022 (currículo CV do ESO)</li>
+        <li>• Decreto 108/2022 (Currículo de Bacharelado)</li>
+        <li>• Decreto 114/2025 (ordenação CV FP)</li>
+        <li>• Resolução 12/2023 (atenção à diversidade)</li>
+        <li>• Decreto 104/2018 (CV inclusão educacional)</li>
+        <li>• Resolução 27/2022 (Aulas e plataformas)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="mt-4">
+    <div class="field-group"><label class="field-label">📚 Assunto e nível</label><input type="text" class="field-input" id="norm-materia" placeholder="Ex: Matemática PMAR 3º ESO"></div>
+    <button class="gen-btn gen-btn-orange" onclick="generateAndShow('apartado-normativa')"><i class="fas fa-balance-scale"></i> Gerar seção de enquadramento legal</button>
+    <div class="prompt-result" id="result-apartado-normativa"></div>
+    <button class="copy-btn" id="copy-apartado-normativa" onclick="copyPrompt('apartado-normativa')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+  </div>
+</div>
+
+</div>
+</details>
+</div>
+
+</div>
+</main>
+</div>
+
+<script>
+window.addEventListener('scroll',()=>{document.getElementById('scroll-progress').style.width=(window.scrollY/(document.body.scrollHeight-window.innerHeight))*100+'%';document.getElementById('back-to-top').classList.toggle('visible',window.scrollY>400);});
+document.getElementById('back-to-top').onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+const io=new IntersectionObserver(e=>e.forEach(en=>{if(en.isIntersecting)en.target.classList.add('in-view')}),{threshold:.08});
+document.querySelectorAll('.fade-in').forEach(el=>io.observe(el));
+const toggle=document.getElementById('sidebar-toggle');
+const aside=document.querySelector('aside');
+const backdrop=document.getElementById('sidebar-backdrop');
+toggle.onclick=()=>{aside.classList.toggle('sidebar-open');backdrop.classList.toggle('active')};
+backdrop.onclick=()=>{aside.classList.remove('sidebar-open');backdrop.classList.remove('active')};
+function showToast(msg){document.getElementById('toast-msg').textContent=msg;document.getElementById('toast').classList.add('show');setTimeout(()=>document.getElementById('toast').classList.remove('show'),2500);}
+
+const PROMPTS={
+  'prog-completa':()=>{
+    const m=document.getElementById('prog-materia').value||'[asignatura]';
+    const e=document.getElementById('prog-etapa').value;
+    const c=document.getElementById('prog-centro').value;
+    const cur=document.getElementById('prog-curso').value||'2025-2026';
+    const s=document.getElementById('prog-saberes').value||"[conhecimento básico]";
+    const ce=document.getElementById('prog-ce').value||'[CE]';
+    const cr=document.getElementById('prog-criterios').value||'[criterios]';
+    const h=document.getElementById('prog-horas').value||'[horas]';
+    const met=document.getElementById('prog-met').value;
+    const ctx=document.getElementById('prog-contexto').value;
+    return `Atua como chefe de departamento especialista em Regulamentos educacionais LOMLOE e legislação ${e}. Escreva uma PROGRAMAÇÃO DE ENSINO COMPLETA E LEGAL para ${m}, curso ${cur}, em um ${c}.
+DADOS CURRÍCULOS:
+• Estágio: ${e}
+• Conhecimentos básicos: ${s}
+• Habilidades específicas: ${ce}
+• Critérios de avaliação: ${cr}
+• Carga horária: ${h}
+• Metodologia principal: ${met}\n${ctx?"• Contexto centro/grupo: "+ctx:''}
+
+ESTRUTURA OBRIGATÓRIA DA PROGRAMAÇÃO DIDÁTICA:
+1. CAPA E DADOS DE IDENTIFICAÇÃO
+• Disciplina, nível, departamento, professor, ano letivo, centro, localidade
+2. INTRODUÇÃO E JUSTIFICATIVA
+• Apresentação da disciplina e sua importância
+• Contribuição para o Perfil de Saída dos alunos
+• Relevância para a vida real dos alunos
+3. QUADRO REGULATÓRIO E LEGAL
+• Legislação estadual aplicável (LOMLOE, RD correspondente)
+• Legislação autônoma de ${e}
+• Referências ao currículo oficial
+4. CONTEXTUALIZAÇÃO
+• Contexto socioeducativo do centro
+• Características dos alunos
+• Relacionamento com outras disciplinas (interdisciplinaridade)
+5. CONTRIBUIÇÃO PARA O PERFIL DE PRODUÇÃO
+• Competências-chave desenvolvidas (com descrição de como este tema contribui)
+• Descritores operacionais do Perfil de Resultados envolvido
+6. OBJETIVOS DIDÁTICOS
+• Objetivos das etapas relacionadas
+• Objetivos específicos formulados em termos de capacidades
+7. LIGAÇÃO CURRICULAR
+• Competências específicas: ${ce}
+• Conhecimentos básicos organizados por blocos: ${s}
+• Critérios de avaliação: ${cr}
+
+8. ELEMENTOS TRANSVERSAIS
+• Educação para a cidadania
+• TIC e inteligência artificial
+• Educação para o desenvolvimento sustentável (ODS)
+• Perspectiva de género
+• Educação emocional
+• Multilinguismo (se aplicável)
+9. TEMPO POR TRIMESTRE E UNIDADES DIDÁTICAS
+• Mapa de unidades com distribuição por trimestres
+• Horas por unidade
+• Critérios de avaliação por unidade
+10. METODOLOGIA
+• Princípios metodológicos (${met})
+• Estratégias concretas de ensino
+• Tipos de agrupamento
+• Ambientes de aprendizagem
+11. MATERIAIS E RECURSOS
+• Recursos digitais e analógicos
+• Referência a plataformas (sim) aplica-se: Aules, GVA...)
+12. ATENÇÃO À DIVERSIDADE E DUA
+• Medidas ordinárias e extraordinárias
+• Enquadramento da DUA: representação, acção-expressão, implicação
+• Medidas para ACINEES
+• Altas capacidades
+• NEAE
+13. AVALIAÇÃO
+• Sistema de avaliação (inicial, formativa, sumativa)
+• Instrumentos de avaliação (mínimo 4 diferentes)
+• Critérios de classificação com ponderação exata
+• Procedimentos de recuperação e melhoria
+• Avaliação do processo de ensino
+14. ATIVIDADES COMPLEMENTARES E EXTRA-CURRICULARES
+• Atividades previstas para complementar o currículo
+15. MECANISMOS DE MONITORAMENTO E AVALIAÇÃO DA PROGRAMAÇÃO
+• Como a programação é revisada e atualizada durante o curso
+Solicitar que o texto seja escrito em linguagem técnico-pedagógica adequada para apresentação à equipe gestora. IMPORTANTE: O professor revisará todo o documento antes de sua apresentação oficial.`;
+  },
+
+  'prog-fp':()=>{
+    const ci=document.getElementById('fp-ciclo').value||"[ciclo FP]";
+    const mo=document.getElementById('fp-modulo').value||"[módulo]";
+    const ra=document.getElementById('fp-ra').value||'[RA]';
+    const ce=document.getElementById('fp-ce').value||'[CE]';
+    const h=document.getElementById('fp-horas').value||'[horas]';
+    const d=document.getElementById('fp-decreto').value||'[decreto]';
+    return `Atua como chefe de departamento especializado em Formação Profissional. Escreva a PROGRAMAÇÃO DO MÓDULO PROFISSIONAL "${mo}" do ciclo de formação "${ci}".
+DADOS:
+• Total de horas: ${h}
+• Decreto de título: ${d}
+• Resultados de aprendizagem: ${ra}
+• Critérios de avaliação: ${ce}
+
+ESTRUTURA DA PROGRAMAÇÃO FP:
+1. IDENTIFICAÇÃO DO MÓDULO
+• Denominação, ciclo, nível, duração
+• Família profissional, qualificação profissional de referência
+• Relacionamento com o mundo profissional
+2. GERAL OBJETIVOS DO CICLO CONTRIBUÍDO
+3. OBJETIVOS DE APRENDIZAGEM E CRITÉRIOS DE AVALIAÇÃO
+Para cada RA:
+• Enunciado completo do RA
+• Critérios de avaliação associados à descrição
+• Peso na nota do módulo
+4. CONTEÚDO
+Organizado por Unidades de Trabalho (UT):
+• UT1: [nome], duração, conteúdo, RA trabalhado
+• UT2...
+5. TEMPO
+• Distribuição de horas por avaliação e UT
+• Cronograma mensal
+6. METODOLOGIA PARA EFP
+• Aprendizagem através de projetos profissionais
+• Simulação de situações reais de trabalho
+• Formação dupla (se aplicável)
+7. AVALIAÇÃO EM EFP
+• Avaliação por RA e CE
+• Instrumentos: práticas, projetos, testes, observação
+• Sistema de notas (0-10) com tabela de ponderação
+• Recuperação: chamada extraordinária
+• Avaliação de alunos com FCT
+8. MATERIAIS E EQUIPAMENTOS
+• Recursos específicos para o setor profissional
+• Software profissional (se aplicável)
+9. RELACIONAMENTO COM O AMBIENTE PRODUTIVO
+• Empresas e setores relacionados na área
+• Oportunidades profissionais do módulo
+10. QUADRO REGULATÓRIO
+• RD de título, decreto CV, RD 659/2023...`;
+  },
+
+  'temporalizacion':()=>{
+    const m=document.getElementById('temp-materia').value||'[disciplina]';
+    const u=document.getElementById('temp-unidades').value||'[unidades]';
+    const s=document.getElementById('temp-semanas').value||"T1: 12 / T2: 11 / T3: 8 semanas";
+    const c=document.getElementById('temp-criterio').value;
+    return `Atua como chefe de departamento. Projete o TEMPO ANUAL de ${m}.
+Unidades/Blocos: ${u}
+Semanas de ensino: ${s}
+Critérios de distribuição: ${c}
+
+Gera:
+1. MAPA ANUAL DE UNIDADES DIDÁTICAS
+Tabela completa com:
+| Trimestre | UD | Título | Semanas | Horas | CE envolvidos |
+2. DETALHE POR TRIMESTRE
+Para cada trimestre:
+• Unidades com datas aproximadas de início e término
+• Horas disponíveis vs. horas atribuídas
+• Critérios de avaliação trabalhados no trimestre
+• Situação de aprendizagem integrativa do trimestre
+3. JUSTIFICATIVA DA SEQUÊNCIA
+Por que esta ordem (pré-requisitos, complexidade, regulamentos...)
+4. PREVISÃO DE CONTINGÊNCIAS
+• Sessões de revisão/recuperação agendadas por trimestre
+• Horas para atividades complementares
+• Margem para imprevistos atrasos
+5. TABELA RESUMO
+Tabela final ordenada com todas as informações`;
+  },
+
+  'apartado-dua':()=>{const m=document.getElementById('dua-materia').value||'[disciplina]';const n=document.getElementById('dua-nee').value||"diversidade usual";return `Atua como especialista em educação inclusiva e UDL. Escreva a SEÇÃO DE ATENÇÃO À DIVERSIDADE E DUA para a programação do ${m}.
+Alunos com necessidades específicas: ${n}
+
+Estrutura da seção:
+1. PRINCÍPIOS GERAIS
+Marco filosófico de atenção à diversidade (Lei Orgânica, Decreto 104/2018 CV)
+2. MEDIDAS DE CUIDADOS ORDINÁRIOS
+• Adaptações metodológicas para todo o grupo
+• Diversificação de atividades
+• Agrupamentos flexíveis
+3. DUA (Design Universal para Aprendizagem) ENQUADRAMENTO
+• Princípio 1 - Múltiplas formas de representação: [3-4 medidas concretas para ${m}]
+• Princípio 2 - Múltiplas formas de ação e expressão: [3-4 medidas]
+• Princípio 3 - Múltiplas formas de envolvimento: [3-4 medidas]
+4. MEDIDAS ESPECÍFICAS POR PERFIL
+Para ${n}:
+• Adaptações na metodologia
+• Adaptações na avaliação
+• Suporte e recursos adicionais
+5. ALTAS CAPACIDADES
+• Plano de enriquecimento e expansão em ${m}
+
+6. COORDENAÇÃO
+• Com orientação, PT, AL, famílias`;},
+
+  'apartado-calificacion':()=>{const m=document.getElementById('cal-materia2').value||'[disciplina]';const i=document.getElementById('cal-instrumentos').value||"exame, tarefas, atitude";return `Atua como chefe de departamento. Escreva a SEÇÃO DE AVALIAÇÃO E QUALIFICAÇÃO para a programação do ${m}.
+Instrumentos utilizados pelo professor: ${i}
+
+Estrutura:
+1. CONCEITO DE AVALIAÇÃO
+Avaliação contínua, formativa, integrativa e diferenciada
+2. TIPOS DE AVALIAÇÃO
+• Avaliação inicial: quando, como, que informações são coletadas
+• Avaliação formativa: instrumentos e frequência
+• Avaliação somativa: critérios de fechamento de período
+3. INSTRUMENTOS DE AVALIAÇÃO
+Para os instrumentos ${i}:
+• Descrição de cada instrumento
+• Quando
+é aplicado • O que a CE avalia
+• Peso na qualificação (%)
+4. CRITÉRIOS DE QUALIFICAÇÃO
+Tabela com dados exatos percentuais para cada instrumento:
+Tabela: Instrumento | CE avaliado | Peso %
+Total: 100%
+5. NOTA FINAL
+Fórmula para cálculo da nota trimestral e final
+6. RECUPERAÇÃO E MELHORIA
+• Procedimento de recuperação (teste de recuperação, resultados...)
+• Data de recuperação
+• Chamada extraordinária (setembro/junho)
+7. AVALIAÇÃO DO PRÓPRIO PROCESSO DE ENSINO
+• Indicadores para avaliar a programação`;},
+
+  'apartado-transversal':()=>{const m=document.getElementById('trans-materia').value||'[disciplina]';return `Atuar como professor especialista no currículo LOMLOE. Escreva a SEÇÃO DE ELEMENTOS TRANSVERSAIS para programação ${m}.
+Inclui como esta disciplina contribui para:
+1. EDUCAÇÃO PARA A CIDADANIA E A DEMOCRACIA
+• Conteúdos/atividades específicas em ${m}
+
+2. TECNOLOGIAS DE INFORMAÇÃO E COMUNICAÇÃO (TIC)
+• Uso de ferramentas e plataformas digitais (Aules, etc.)
+• Competência Digital (CD) desenvolvida
+• IA: uso responsável e ético em sala de aula
+3. DESENVOLVIMENTO SUSTENTÁVEL E ODS
+• ODS relacionados com ${m}
+• Atividades específicas de sensibilização
+4. PERSPECTIVA DE GÉNERO E IGUALDADE
+• Linguagem inclusiva
+• Referências femininas na disciplina
+• Materiais não sexistas
+5. EDUCAÇÃO EMOCIONAL E BEM-ESTAR
+• Clima positivo na sala de aula
+• Gerenciamento de estresse nas avaliações
+6. PREVENÇÃO DE RISCOS E SAÚDE
+• Postura, ergonomia, segurança (se aplicável)
+7. PLURILINGUALISMO
+• Vocabulário específico em valenciano e inglês (se aplicável)
+• Conexão com PEPLI/PLC do centro`;},
+
+  'apartado-perfil':()=>{const m=document.getElementById('perfil-materia2').value||'[disciplina]';return `Escreva a SEÇÃO DE CONTRIBUIÇÃO PARA O PERFIL DE SAÍDA para programação ${m}.
+Desenvolve:
+1. COMPETÊNCIAS-CHAVE DESENVOLVIDAS
+Para cada competência-chave relevante:
+• CCL (Comunicação Linguística)
+• STEM
+• CD (Digital)
+• CPSAA (Aprender a Aprender)
+• CC (Cidadania)
+• CE (Empreendedor)
+• CCEC (Cultural)
+Descrição de COMO ${m} contribui concretamente para esta competência.
+2. DESCRITORES OPERACIONAIS DO PERFIL DE SAÍDA
+Os descritores do RD 243/2022 trabalhados em ${m} (mínimo 8):
+• Código + descritor + como trabalhar nesta questão
+3. SINERGIAS COM OUTROS ASSUNTOS
+Como a contribuição de ${m} para o Perfil de Saída é reforçada com outros assuntos`;},
+
+  'apartado-normativa':()=>{const m=document.getElementById('norm-materia').value||'[disciplina]';return `Escreva o QUADRO REGULATÓRIO E LEGAL completo SEÇÃO para a programação de ${m} na Comunidade Valenciana.
+Inclui:
+1. REGULAMENTOS ESTADUAIS
+• LOMLOE (LO 3/2020 de 29 de dezembro)
+• Decreto Real do currículo correspondente
+• RD 243/2022 (Perfil de Saída)
+• Lei Orgânica 1/2004 (igualdade)
+• Lei Orgânica 3/2018 (LOPDGDD)
+• Resolução de 22 de outubro de 2021 (regulamentos de avaliação)
+2. REGULAMENTOS AUTÔNOMOS (COMUNITAT) VALENCIANA)
+• Decreto 107/2022 (ESO) ou 108/2022 (Bach) - o que corresponder
+• Decreto 104/2018 (inclusão educacional)
+• Resolução de 12 de maio de 2023
+• Circulares de início do curso GVA 2025-2026
+3. REGULAMENTO ESPECÍFICO DO ${m.toUpperCase()}
+• Ordens e resoluções específicas da disciplina, se existirem
+4. TEXTOS DE REFERÊNCIA CURRICULAR
+• Anexo ao decreto onde consta o conteúdo do ${m}
+aparecem • Resoluções de avaliação e qualificação
+Formato: lista estruturada, citável diretamente na programação oficial.`}
+};
+
+function generateAndShow(key){const prompt=PROMPTS[key]();const el=document.getElementById('result-'+key);el.textContent=prompt;el.classList.add('show');const btn=document.getElementById('copy-'+key);if(btn)btn.style.display='inline-flex';el.scrollIntoView({behavior:'smooth',block:'nearest'});}
+function copyPrompt(key){const el=document.getElementById('result-'+key);navigator.clipboard.writeText(el.textContent).then(()=>{const btn=document.getElementById('copy-'+key);if(btn){btn.classList.add('copied');btn.innerHTML="<i class=\"fas fa-check\"></i>Copiado!";}showToast("✅ Prompt copiado");setTimeout(()=>{if(btn){btn.classList.remove('copied');btn.innerHTML="<i class=\"fas fa-copy\"></i>Copiar prompt";}},2000);});}
+</script>
+  <script src="../assets/portal-nav.js"></script>
+</body>
+</html>

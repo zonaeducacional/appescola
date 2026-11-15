@@ -1,0 +1,18 @@
+EDOCENTIA — versão em português do Brasil
+
+COMO ABRIR
+1. Extraia o ZIP.
+2. Na pasta extraída, execute: python -m http.server 8080
+   No Windows, também pode usar: py -m http.server 8080
+3. Abra http://localhost:8080 no navegador.
+
+Não há etapa de build nem necessidade de npm. HTML, CSS e JavaScript e as bibliotecas CDN do projeto original foram mantidos. O servidor local é necessário para carregar o catálogo JSON. Fontes e bibliotecas externas exigem internet.
+
+ESCOPO
+Interface, catálogo e textos de apoio traduzidos para português. Os aplicativos externos da biblioteca continuam hospedados pelos respectivos autores, em seus idiomas originais. Os módulos de legislação mantêm as referências espanholas e valencianas; esta tradução não adapta o conteúdo à legislação brasileira. Exemplos de idiomas estrangeiros e atividades multilíngues conservam seu contexto pedagógico.
+
+CRÉDITOS E LICENÇAS
+Projeto original de Ana Hernández Iranzo (Ana H. Iranzo), assistida por IA.
+Site: https://curiousminds123.github.io/EDOCENTIA/index.html
+Código-fonte: https://github.com/curiousminds123/EDOCENTIA
+Esta distribuição modifica os textos para tradução ao português do Brasil. Créditos, links e declarações de licença originais são preservados. Consulte README-original.md e as licenças indicadas em cada recurso. A tradução não estabelece uma licença única para os diferentes recursos.

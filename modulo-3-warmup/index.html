@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Módulo 3 — Gerador de Aquecimento | EDOCENTIA</title>
+<meta name="description" content="Gere atividades de aquecimento para iniciar suas aulas com energia. Discussões, quebra-cabeças, perguntas para quebrar o gelo, kakuro e muito mais. Prompts prontos para qualquer IA.">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b}
+#scroll-progress{position:fixed;top:0;left:0;width:0;height:4px;background:linear-gradient(90deg,#8b5cf6,#a78bfa,#f97316);z-index:9999}
+.hero-section{background-image:linear-gradient(135deg,rgba(109,40,217,.93) 0%,rgba(139,92,246,.9) 60%,rgba(249,115,22,.85) 100%),url('https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=2000&auto=format&fit=crop');background-size:cover;background-position:center;background-attachment:fixed}
+.hero-shimmer{background:linear-gradient(90deg,#fff 40%,rgba(255,255,255,.6) 50%,#fff 60%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 4s linear infinite}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+.card-pro{background:#fff;border-radius:1.25rem;box-shadow:0 4px 20px rgba(0,0,0,.05);border:1px solid rgba(0,0,0,.04);transition:all .3s ease}
+.card-pro:hover{transform:translateY(-2px);box-shadow:0 12px 35px rgba(0,0,0,.09)}
+aside nav a{transition:all .25s ease;color:#475569;border-left:3px solid transparent;display:flex;align-items:center;gap:.6rem;padding:.6rem .9rem;border-radius:.75rem;font-size:.85rem;font-weight:500;text-decoration:none}
+aside nav a:hover{background:linear-gradient(90deg,rgba(139,92,246,.1),transparent)!important;color:#7c3aed;border-left-color:#8b5cf6;padding-left:1.2rem;font-weight:700}
+#sidebar-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:999;background:linear-gradient(135deg,#8b5cf6,#a78bfa);color:#fff;border:none;width:2.8rem;height:2.8rem;border-radius:.9rem;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer;box-shadow:0 4px 16px rgba(139,92,246,.4)}
+#sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(4px);z-index:490}
+@media(max-width:1023px){#sidebar-toggle{display:flex}aside{position:fixed!important;top:0;left:0;height:100dvh!important;width:85vw!important;max-width:340px!important;z-index:500;transform:translateX(-110%);transition:transform .35s cubic-bezier(.4,0,.2,1);overflow-y:auto}aside.sidebar-open{transform:translateX(0)}#sidebar-backdrop.active{display:block}#main-content{width:100%!important}}
+details summary{user-select:none;cursor:pointer;list-style:none;outline:none}
+details summary::-webkit-details-marker{display:none}
+details summary .chev{transition:transform .3s ease}
+details[open] summary .chev{transform:rotate(180deg)}
+.field-label{display:block;font-size:.8rem;font-weight:700;color:#7c3aed;margin-bottom:.35rem}
+.field-input{width:100%;border:1.5px solid #ede9fe;border-radius:.65rem;padding:.55rem .85rem;font-size:.85rem;color:#1e293b;font-family:'Plus Jakarta Sans',sans-serif;background:#faf8ff;transition:all .2s ease;outline:none}
+.field-input:focus{border-color:#8b5cf6;box-shadow:0 0 0 3px rgba(139,92,246,.12);background:#fff}
+.field-input::placeholder{color:#94a3b8}
+.field-group{margin-bottom:1rem}
+.gen-btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.6rem;border-radius:.85rem;font-weight:700;font-size:.9rem;cursor:pointer;transition:all .25s ease;border:none;width:100%;margin-top:.5rem}
+.gen-btn-violet{background:linear-gradient(135deg,#8b5cf6,#a78bfa);color:#fff;box-shadow:0 4px 16px rgba(139,92,246,.35)}
+.gen-btn-violet:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(139,92,246,.5)}
+.gen-btn-orange{background:linear-gradient(135deg,#f97316,#fb923c);color:#fff;box-shadow:0 4px 16px rgba(249,115,22,.3)}
+.gen-btn-orange:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(249,115,22,.45)}
+.prompt-result{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:.75rem;padding:1.25rem;font-size:.8rem;line-height:1.7;color:#475569;white-space:pre-wrap;max-height:250px;overflow-y:auto;word-break:break-word;display:none;margin-top:.75rem}
+.prompt-result.show{display:block}
+.copy-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1.1rem;background:rgba(139,92,246,.1);border:1px dashed rgba(139,92,246,.4);border-radius:.6rem;color:#7c3aed;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s ease;margin-top:.5rem}
+.copy-btn:hover{background:rgba(139,92,246,.18);border-style:solid}
+.copy-btn.copied{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.4);color:#059669}
+.prompt-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:1rem;padding:1.5rem;transition:all .3s ease;margin-bottom:1rem}
+.prompt-card:hover{border-color:rgba(139,92,246,.3);box-shadow:0 8px 30px rgba(139,92,246,.09)}
+.fade-in{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s cubic-bezier(.4,0,.2,1)}
+.fade-in.in-view{opacity:1;transform:translateY(0)}
+#toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(80px);background:#1e293b;color:#fff;padding:.75rem 1.5rem;border-radius:1rem;font-size:.85rem;font-weight:600;z-index:9999;transition:transform .3s ease;display:flex;align-items:center;gap:.5rem}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#back-to-top{position:fixed;bottom:2rem;right:2rem;width:3rem;height:3rem;background:linear-gradient(135deg,#8b5cf6,#a78bfa);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;pointer-events:none;transform:translateY(20px);transition:all .3s ease;z-index:998;border:none}
+#back-to-top.visible{opacity:1;pointer-events:all;transform:translateY(0)}
+.cat-icon{width:2.5rem;height:2.5rem;border-radius:.9rem;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+/* WARM-UP CARDS GRID */
+.warmup-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}
+@media(max-width:640px){.warmup-grid{grid-template-columns:1fr}}
+</style>
+  <link rel="stylesheet" href="../assets/portal-nav.css">
+</head>
+<body class="antialiased">
+<div id="scroll-progress"></div>
+<button id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+<div id="sidebar-backdrop"></div>
+<button id="back-to-top"><i class="fas fa-arrow-up"></i></button>
+<div id="toast"><i class="fas fa-fire text-orange-400"></i> <span id="toast-msg">Pronto!</span></div>
+
+<div class="flex min-h-screen">
+<aside class="w-64 flex-shrink-0 bg-white border-r border-slate-100 shadow-sm sticky top-0 h-screen overflow-y-auto z-50">
+  <div class="p-5 border-b border-slate-100">
+    <div class="flex items-center gap-2.5 mb-1">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center text-white shadow text-base">🔥</div>
+      <div>
+        <div class="font-extrabold text-slate-800 text-sm leading-tight">Gerador de aquecimento</div>
+        <div class="text-xs text-slate-400">Módulo 03 · EDOCENTIA</div>
+      </div>
+    </div>
+  </div>
+  <nav class="p-3 space-y-0.5">
+    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest px-2 pt-3 pb-1">Peças do módulo</p>
+    <a href="#parte-1"><i class="fas fa-fire w-4 text-orange-500"></i> Aquecimento rápido</a>
+    <a href="#parte-2"><i class="fas fa-question-circle w-4 text-violet-500"></i> Perguntas do dia</a>
+    <a href="#parte-3"><i class="fas fa-users w-4 text-cyan-500"></i> Dinâmica de Grupo</a>
+    <a href="#parte-4"><i class="fas fa-brain w-4 text-pink-500"></i> Desafios Mentais</a>
+    <a href="#parte-5"><i class="fas fa-music w-4 text-emerald-500"></i> Aquecimento Musical</a>
+    <hr class="my-2 border-slate-100">
+    <a href="../index.html"><i class="fas fa-home w-4 text-slate-400"></i> Homepage EDOCENTIA</a>
+    <a href="../app-ia.html"><i class="fas fa-robot w-4 text-violet-500"></i> Aplicativo interativo de IA</a>
+  </nav>
+</aside>
+
+<main id="main-content" class="flex-1 min-w-0">
+<section class="hero-section text-white py-16 px-8 md:px-14">
+  <div class="max-w-4xl">
+    <a href="../index.html" class="inline-flex items-center gap-2 text-white/70 hover:text-white text-xs font-semibold mb-5 transition-colors"><i class="fas fa-arrow-left"></i> Voltar para EDOCENTIA</a>
+    <div class="inline-flex items-center gap-2 bg-white/15 border border-white/25 rounded-full px-4 py-1.5 text-xs font-semibold mb-4 backdrop-blur-sm">
+      <i class="fas fa-fire text-orange-300"></i> Módulo 03 - Ativação e Motivação
+    </div>
+    <h1 class="text-3xl md:text-5xl font-extrabold leading-tight mb-3 hero-shimmer">Gerador<br>Professor de Aquecimento</h1>
+    <p class="text-base text-white/85 max-w-2xl leading-relaxed mb-5">Comece cada aula com energia. Gere atividades de aquecimento personalizadas para sua matéria e nível em segundos. Debates, desafios, dúvidas, dinâmicas e muito mais.</p>
+    <div class="flex flex-wrap gap-3">
+      <a href="#parte-1" class="bg-white text-violet-700 font-bold px-5 py-2.5 rounded-xl text-sm shadow hover:-translate-y-0.5 transition-all">🔥 Aquecimento rápido</a>
+      <a href="#parte-3" class="bg-white/15 border border-white/30 text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-white/25 transition-all">👥 Dinâmica</a>
+      <a href="#parte-4" class="bg-white/15 border border-white/30 text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-white/25 transition-all">🧠 Desafios mentais</a>
+    </div>
+  </div>
+</section>
+
+<div class="max-w-5xl mx-auto px-5 md:px-10 py-10 space-y-8">
+
+<!-- PARTE 1: WARM-UP RÁPIDO -->
+<div id="parte-1" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100" open>
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-orange-100 text-orange-700">🔥</div>
+    <div><div class="font-bold text-slate-800">Parte 1 — Aquecimento rápido (5-10 min)</div><div class="text-xs text-slate-400">Atividade inicial para se conectar com o tópico da sessão</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+
+<div class="bg-violet-50 border border-violet-100 rounded-xl p-4 mb-5 text-sm text-violet-800">
+  <i class="fas fa-lightbulb mr-1 text-violet-600"></i> <strong>O aquecimento perfeito</strong> dura de 5 a 10 minutos, conecta-se com o conteúdo do dia, ativa conhecimentos prévios e cria um clima positivo. A IA pode gerar um aquecimento totalmente personalizado para você em segundos.
+</div>
+
+<div class="warmup-grid">
+
+<div class="prompt-card">
+  <div class="text-2xl mb-2">⚡</div>
+  <div class="font-bold text-slate-700 text-sm mb-3">Warm-Up Express com conteúdo do dia</div>
+  <div class="field-group">
+    <label class="field-label">📚 Assunto, nível e tópico do dia</label>
+    <input type="text" class="field-input" id="wu1-tema" placeholder="Ex: Química 4º ESO — A reação química">
+  </div>
+  <div class="field-group">
+    <label class="field-label">⏱️ Tempo disponível</label>
+    <select class="field-input" id="wu1-tiempo">
+      <option>5 minutos</option>
+      <option selected>8 minutos</option>
+      <option>10 minutos</option>
+    </select>
+  </div>
+  <div class="field-group">
+    <label class="field-label">🎯 Tipo de aquecimento</label>
+    <select class="field-input" id="wu1-tipo">
+      <option selected>Pergunta provocativa</option>
+      <option>Imagem misteriosa + debate</option>
+      <option>Quick Kahoot (3-5 perguntas)</option>
+      <option>Notícias relacionadas Título</option>
+      <option>Vídeo de 2 min + reflexão</option>
+      <option>Mistério para resolver</option>
+      <option>Conexão tópico anterior</option>
+    </select>
+  </div>
+  <button class="gen-btn gen-btn-violet" onclick="generateAndShow('wu-express')"><i class="fas fa-bolt"></i> Gerar aquecimento</button>
+  <div class="prompt-result" id="result-wu-express"></div>
+  <button class="copy-btn" id="copy-wu-express" onclick="copyPrompt('wu-express')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+</div>
+
+<div class="prompt-card">
+  <div class="text-2xl mb-2">🎲</div>
+  <div class="font-bold text-slate-700 text-sm mb-3">Banco de 10 Aquecimentos para uma Unidade</div>
+  <div class="field-group">
+    <label class="field-label">📚 Assunto e unidade</label>
+    <input type="text" class="field-input" id="wu2-unidad" placeholder="Ex: História 3º ESO — A Revolução Industrial">
+  </div>
+  <div class="field-group">
+    <label class="field-label">📋 Duração da unidade</label>
+    <input type="text" class="field-input" id="wu2-sesiones" placeholder="Ex: 10 sessões">
+  </div>
+  <button class="gen-btn gen-btn-orange" onclick="generateAndShow('wu-banco')"><i class="fas fa-list"></i> Gerar banco de 10</button>
+  <div class="prompt-result" id="result-wu-banco"></div>
+  <button class="copy-btn" id="copy-wu-banco" onclick="copyPrompt('wu-banco')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+</div>
+
+</div>
+</div>
+</details>
+</div>
+
+<!-- PARTE 2: PREGUNTAS DEL DÍA -->
+<div id="parte-2" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-violet-100 text-violet-700">❓</div>
+    <div><div class="font-bold text-slate-800">Parte 2 — Perguntas Motivadoras do Dia</div><div class="text-xs text-slate-400">Perguntas abertas, filosóficas, científicas e do mundo real</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+
+<div class="prompt-card">
+  <div class="font-bold text-slate-700 text-sm mb-3">❓ Pergunta motivadora do dia (com estratégias de discussão)</div>
+  <div class="grid md:grid-cols-2 gap-3">
+    <div class="field-group">
+      <label class="field-label">📚 Assunto e nível</label>
+      <input type="text" class="field-input" id="preg-materia" placeholder="Ex: Filosofia 1º Bach.">
+    </div>
+    <div class="field-group">
+      <label class="field-label">🎯 Tópico da sessão</label>
+      <input type="text" class="field-input" id="preg-tema" placeholder="Ex: Liberdade e determinismo">
+    </div>
+    <div class="field-group">
+      <label class="field-label">🌍 Tipo de pergunta</label>
+      <select class="field-input" id="preg-tipo">
+        <option>Filosófico ou ético</option>
+        <option>Científico ou tecnológico</option>
+        <option>Social ou político</option>
+        <option>Histórico ou comparativo</option>
+        <option>Pessoal e experiencial</option>
+        <option>Paradoxo ou dilema</option>
+        <option>O que aconteceria se...?</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label class="field-label">📋 Formato de resposta</label>
+      <select class="field-input" id="preg-formato">
+        <option selected>Discussão oral curta</option>
+        <option>Cartão de entrada escrito</option>
+        <option>Sala de aula posicionamento (concordo/não)</option>
+        <option>Think-Pair-Share</option>
+      </select>
+    </div>
+  </div>
+  <button class="gen-btn gen-btn-violet" onclick="generateAndShow('pregunta-dia')"><i class="fas fa-question-circle"></i> Gerar pergunta</button>
+  <div class="prompt-result" id="result-pregunta-dia"></div>
+  <button class="copy-btn" id="copy-pregunta-dia" onclick="copyPrompt('pregunta-dia')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+</div>
+
+</div>
+</details>
+</div>
+
+<!-- PARTE 3: DINÁMICAS DE GRUPO -->
+<div id="parte-3" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-cyan-100 text-cyan-700">👥</div>
+    <div><div class="font-bold text-slate-800">Parte 3 — Dinâmica de Grupo e Coesão</div><div class="text-xs text-slate-400">Atividades para conectar, ativar e criar um bom clima de sala de aula</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+
+<div class="prompt-card">
+  <div class="font-bold text-slate-700 text-sm mb-3">👥 Dinâmica de grupo personalizada</div>
+  <div class="grid md:grid-cols-2 gap-3">
+    <div class="field-group">
+      <label class="field-label">📚 Nível e número de alunos</label>
+      <input type="text" class="field-input" id="din-nivel" placeholder="Ex: 3º ESO, 28 alunos">
+    </div>
+    <div class="field-group">
+      <label class="field-label">🎯 Objetivo do dinâmico</label>
+      <select class="field-input" id="din-objetivo">
+        <option selected>Coesão e clima positivo na sala de aula</option>
+        <option>Ativar conhecimentos prévios</option>
+        <option>Formar grupos de trabalho</option>
+        <option>Pausa o gelo (início, claro)</option>
+        <option>Revisão de conteúdo</option>
+        <option>Recuperar a atenção após o exame</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label class="field-label">⏱️ Duração</label>
+      <select class="field-input" id="din-tiempo">
+        <option>5 minutos</option>
+        <option selected>10 minutos</option>
+        <option>15 minutos</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label class="field-label">🛠️ Materiais disponíveis</label>
+      <input type="text" class="field-input" id="din-materiales" placeholder="Ex: placa, cartões, dispositivos, nenhum...">
+    </div>
+  </div>
+  <button class="gen-btn gen-btn-violet" onclick="generateAndShow('dinamica-grupo')"><i class="fas fa-users"></i> Gerar dinâmica</button>
+  <div class="prompt-result" id="result-dinamica-grupo"></div>
+  <button class="copy-btn" id="copy-dinamica-grupo" onclick="copyPrompt('dinamica-grupo')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+</div>
+
+</div>
+</details>
+</div>
+
+<!-- PARTE 4: RETOS MENTALES -->
+<div id="parte-4" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-pink-100 text-pink-700">🧠</div>
+    <div><div class="font-bold text-slate-800">Parte 4 — Desafios mentais e ginástica cerebral</div><div class="text-xs text-slate-400">Enigmas, quebra-cabeças, paradoxos e jogos de lógica para ativar o cérebro</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+
+<div class="warmup-grid">
+
+<div class="prompt-card">
+  <div class="text-2xl mb-2">🧩</div>
+  <div class="font-bold text-slate-700 text-sm mb-3">Desafio mental ligado ao assunto</div>
+  <div class="field-group">
+    <label class="field-label">📚 Assunto e nível</label>
+    <input type="text" class="field-input" id="reto-materia" placeholder="Ex: Matemática 2º ESO">
+  </div>
+  <div class="field-group">
+    <label class="field-label">🧠 Tipo de desafio</label>
+    <select class="field-input" id="reto-tipo">
+      <option selected>Enigma matemático</option>
+      <option>Paradoxo Lógico</option>
+      <option>Problema de raciocínio</option>
+      <option>Verdadeiro ou Falso? (mitos)</option>
+      <option>Sequência ou padrão</option>
+      <option>Desafio de estimativa</option>
+    </select>
+  </div>
+  <div class="field-group">
+    <label class="field-label">🎯 Relacionado ao tópico</label>
+    <input type="text" class="field-input" id="reto-tema" placeholder="Ex: frações, ecossistemas, Idade Média...">
+  </div>
+  <button class="gen-btn gen-btn-violet" onclick="generateAndShow('reto-mental')"><i class="fas fa-brain"></i> Gerar desafio</button>
+  <div class="prompt-result" id="result-reto-mental"></div>
+  <button class="copy-btn" id="copy-reto-mental" onclick="copyPrompt('reto-mental')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+</div>
+
+<div class="prompt-card">
+  <div class="text-2xl mb-2">📅</div>
+  <div class="font-bold text-slate-700 text-sm mb-3">Calendário Semanal de Aquecimentos</div>
+  <div class="field-group">
+    <label class="field-label">📚 Assunto e nível</label>
+    <input type="text" class="field-input" id="cal-materia" placeholder="Ex: Inglês 4º ESO">
+  </div>
+  <div class="field-group">
+    <label class="field-label">🗓️ Dias de aula por semana</label>
+    <select class="field-input" id="cal-dias">
+      <option>2 dias</option>
+      <option selected>3 dias</option>
+      <option>4 dias</option>
+      <option>5 dias</option>
+    </select>
+  </div>
+  <div class="field-group">
+    <label class="field-label">📋 Tema/Unidade da semana</label>
+    <input type="text" class="field-input" id="cal-tema" placeholder="Ex: Presente perfeito, o meio ambiente...">
+  </div>
+  <button class="gen-btn gen-btn-orange" onclick="generateAndShow('calendario-warmup')"><i class="fas fa-calendar"></i> Gerar calendário</button>
+  <div class="prompt-result" id="result-calendario-warmup"></div>
+  <button class="copy-btn" id="copy-calendario-warmup" onclick="copyPrompt('calendario-warmup')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+</div>
+
+</div>
+</div>
+</details>
+</div>
+
+<!-- PARTE 5: WARM-UP MUSICAL Y CREATIVO -->
+<div id="parte-5" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-emerald-100 text-emerald-700">🎵</div>
+    <div><div class="font-bold text-slate-800">Parte 5 — Aquecimento musical e criativo</div><div class="text-xs text-slate-400">Músicas, imagens, vídeos e atividades criativas para você começar</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+
+<div class="prompt-card">
+  <div class="font-bold text-slate-700 text-sm mb-3">🎵 Aquecimento baseado em música ou cultura pop</div>
+  <div class="grid md:grid-cols-2 gap-3">
+    <div class="field-group">
+      <label class="field-label">📚 Assunto e tema do dia</label>
+      <input type="text" class="field-input" id="music-materia" placeholder="Ex: Inglês B1 — Vocabulário emoções">
+    </div>
+    <div class="field-group">
+      <label class="field-label">🎵 Tipo de proposta</label>
+      <select class="field-input" id="music-tipo">
+        <option selected>Canção educativa sobre o tema</option>
+        <option>Análise de letras de músicas populares</option>
+        <option>Filme / série: cena relacionada</option>
+        <option>Meme educacional para discussão</option>
+        <option>TikTok ou carretel viral sobre o tema</option>
+        <option>Foto/imagem provocante</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label class="field-label">🎯 Atividade após música/imagem</label>
+      <select class="field-input" id="music-actividad">
+        <option selected>Identificar o vocabulário principal</option>
+        <option>Escrever 3 palavras sugeridas por</option>
+        <option>Debate rápido em pares</option>
+        <option>Conecte-se com conhecimentos prévios</option>
+        <option>Adivinhe o tema da aula</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label class="field-label">👶 Idade dos alunos</label>
+      <input type="text" class="field-input" id="music-edad" placeholder="Ex: 13-14 anos (2º ESO)">
+    </div>
+  </div>
+  <button class="gen-btn gen-btn-violet" onclick="generateAndShow('warmup-musical')"><i class="fas fa-music"></i> Gerar aquecimento musical</button>
+  <div class="prompt-result" id="result-warmup-musical"></div>
+  <button class="copy-btn" id="copy-warmup-musical" onclick="copyPrompt('warmup-musical')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+</div>
+
+</div>
+</details>
+</div>
+
+</div><!-- end main -->
+</main>
+</div>
+
+<script>
+window.addEventListener('scroll',()=>{
+  document.getElementById('scroll-progress').style.width=(window.scrollY/(document.body.scrollHeight-window.innerHeight))*100+'%';
+  document.getElementById('back-to-top').classList.toggle('visible', window.scrollY>400);
+});
+document.getElementById('back-to-top').onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+const io=new IntersectionObserver(e=>e.forEach(en=>{if(en.isIntersecting)en.target.classList.add('in-view')}),{threshold:.08});
+document.querySelectorAll('.fade-in').forEach(el=>io.observe(el));
+const toggle=document.getElementById('sidebar-toggle');
+const aside=document.querySelector('aside');
+const backdrop=document.getElementById('sidebar-backdrop');
+toggle.onclick=()=>{aside.classList.toggle('sidebar-open');backdrop.classList.toggle('active')};
+backdrop.onclick=()=>{aside.classList.remove('sidebar-open');backdrop.classList.remove('active')};
+function showToast(msg){
+  document.getElementById('toast-msg').textContent=msg;
+  document.getElementById('toast').classList.add('show');
+  setTimeout(()=>document.getElementById('toast').classList.remove('show'),2500);
+}
+
+const PROMPTS={
+  'wu-express':()=>{
+    const t=document.getElementById('wu1-tema').value||"[tópico de hoje]";
+    const dur=document.getElementById('wu1-tiempo').value;
+    const tipo=document.getElementById('wu1-tipo').value;
+    return `Atuar como um professor especialista na dinamização da sala de aula. ${dur} para iniciar a aula sobre: ​​ ${t}.
+TIPO DE AQUECIMENTO solicitado: ${tipo}
+
+O aquecimento deve incluir:
+1. NOME DO AQUECIMENTO
+(Um nome atraente e memorável)
+2. OBJETIVO PEDAGÓGICO
+• O que ativa esse aquecimento nos alunos?
+• Como isso se relaciona com o conteúdo do dia?
+3. INSTRUÇÕES PARA O PROFESSOR
+• O que preparar antes da aula
+• Como apresentar aos alunos (texto de introdução que você pode ler)
+• Sequência de passos exatos
+4. INSTRUÇÕES PARA OS ALUNOS
+• Em linguagem clara e direta
+• O que eles vão fazer? Individualmente, em dupla ou em grupo?
+5. DESENVOLVIMENTO (${dur} exato)
+Minuto a minuto:
+• Min 1-2: [o que acontece]
+• Min 3-5: [o que acontece]
+• Fechamento: transição da pergunta para o conteúdo do dia
+6. VARIANTE PARA DIA CURTO
+(versão de 3 minutos se a agenda estiver apertada)
+7. PERGUNTA DE ENCERRAMENTO
+A pergunta perfeita para conectar o aquecimento com o conteúdo principal`;
+  },
+
+  'wu-banco':()=>{
+    const u=document.getElementById('wu2-unidad').value||'[unidad]';
+    const s=document.getElementById('wu2-sesiones').value||"10 sessões";
+    return `Atua como especialista em didática e dinamização. Crie um BANCO DE 10 AQUECIMENTOS para a unidade: ${u} (${s}).
+Para cada aquecimento (10 no total) forneça:
+AQUECIMENTO [N]: [NOME ATRATIVO]
+─────────────────────────────────
+• SESSÃO: [para qual sessão de a unidade]
+• TIPO: [pergunta / discussão / desafio / imagem / jogo / musical / vídeo / enigma / conexão / outro]
+• DURAÇÃO: [máximo 10 min]
+• MATERIAIS: [nenhum / quadro branco / cartões / dispositivos]
+DESCRIÇÃO (2-3 linhas):
+[Sobre o que é o aquecimento e como ele se desenvolve]
+CONEXÃO COM O CONTEÚDO:
+[Como leva ao tópico principal dessa sessão]
+PERGUNTA DE CORREÇÃO:
+[A pergunta principal que você faz no final do aquecimento]
+Certifique-se de que os 10 aquecimentos sejam variados em tipo e metodologia (não repita o mesmo formato duas vezes seguidas).`;
+  },
+
+  'pregunta-dia':()=>{
+    const m=document.getElementById('preg-materia').value||'[disciplina]';
+    const t=document.getElementById('preg-tema').value||'[tema]';
+    const tipo=document.getElementById('preg-tipo').value;
+    const formato=document.getElementById('preg-formato').value;
+    return `Atua como especialista em pedagogia socrática. Gere uma PERGUNTA MOTIVACIONAL DO DIA para ${m}, tópico: ${t}.
+Tipo de pergunta: ${tipo}
+Formato de resposta do aluno: ${formato}
+
+Fornece:
+1. A PERGUNTA PRINCIPAL
+(Formulada de uma forma que provoca pensamento crítico, não uma simples resposta sim ou não)
+2. PERGUNTAS DE ACOMPANHAMENTO (3-5 questões ramificadas)
+Para aprofundar se a discussão está fluindo bem
+3. INFORMAÇÕES DE CONTEXTO PARA O PROFESSOR
+• Possíveis respostas que os alunos podem dar
+• Como redirecionar se a conversa se desviar
+• Conexão com o conteúdo do plano de estudos
+4. PROTOCOLO ${formato.toUpperCase()}
+   • Exato instruções passo a passo (${formato})
+• Como garantir que todos participem
+• Tempo recomendado para cada fase
+5. PERGUNTA DE ENCERRAMENTO
+Para encerrar o aquecimento e se conectar com o conteúdo da sessão
+6. VARIANTE DIGITAL
+Se houver dispositivos: como fazer com Mentimeter, Padlet ou similar`;
+  },
+
+  'dinamica-grupo':()=>{
+    const n=document.getElementById('din-nivel').value||'[nivel]';
+    const o=document.getElementById('din-objetivo').value;
+    const t=document.getElementById('din-tiempo').value;
+    const m=document.getElementById('din-materiales').value||"sem materiais específicos";
+    return `Atuar como especialista em dinâmica de grupo e psicologia educacional. Projete uma DINÂMICA DE GRUPO de ${t} para ${n}.
+OBJETIVO: ${o}
+MATERIAIS DISPONÍVEIS: ${m}
+
+A dinâmica deve incluir:
+1. NOME DA DINÂMICA
+(Original e fácil de lembrar)
+2. OBJETIVO ESPECÍFICO
+O que exatamente alcançaremos com esta dinâmica?
+3. PREPARAÇÃO (antes da chegada dos alunos)
+• O que preparar fisicamente na sala de aula
+• Quais instruções ter prontas
+4. DESENVOLVIMENTO PASSO A PASSO (${t})
+Cada etapa com tempo exato:
+• Etapa 1: Introdução (X min)
+• Etapa 2: Desenvolvimento (X min)
+• Etapa 3: Encerramento e reflexão (X min)
+5. INSTRUÇÕES PARA ALUNOS
+Texto que você pode ler diretamente: "Hoje vamos a..."
+6. GERENCIAR POSSÍVEIS PROBLEMAS
+• O que você faz se alguém não quiser participar?
+• O que você faz se a dinâmica acelera ou desacelera?
+• Como você gerencia grupos de números ímpares?
+7. VARIANTE ONLINE/HÍBRIDA
+Adaptação para fazer por videochamada ou com parte do grupo remotamente`;
+  },
+
+  'reto-mental':()=>{
+    const m=document.getElementById('reto-materia').value||'[disciplina]';
+    const tipo=document.getElementById('reto-tipo').value;
+    const t=document.getElementById('reto-tema').value||'[tema]';
+    return `Atua como especialista em gamificação e pensamento crítico. Crie um DESAFIO MENTAL do tipo "${tipo}" para ${m} relacionado a ${t}.
+O desafio mental deve:
+1. O DESAFIO/ENIGMA
+(Declaração clara e atraente, imediatamente envolvente)
+2. Pistas GRADUADAS (3 níveis)
+• Pista 1 (muito sutil, para 2 minutos depois)
+• Pista 2 (mais direto, por 4 min depois)
+• Pista 3 (quase a solução, para os alunos que não chegam)
+3. SOLUÇÃO COMPLETA
+Com explicação detalhada de porque está correto
+4. CONEXÃO COM ${m.toUpperCase()}
+   Como exatamente esse desafio se conecta com o conteúdo de ${t}
+
+5. EXTENSÃO PARA ALUNOS AVANÇADOS
+Uma versão mais difícil ou uma questão adicional
+6. RESOLVER DINÂMICA
+• Individualmente, em pares ou em grupo?
+• Como a solução é apresentada ao grupo?
+• Como você celebra aqueles que resolvem isso?`;
+  },
+
+  'calendario-warmup':()=>{
+    const m=document.getElementById('cal-materia').value||'[disciplina]';
+    const d=document.getElementById('cal-dias').value;
+    const t=document.getElementById('cal-tema').value||"[tópico semanal]";
+    return `Atua como professor criativo e especialista em planejamento. Elabore um CALENDÁRIO DE AQUECIMENTO para a semana em ${m} (${d}) sobre o tema: ${t}.
+
+Para CADA DIA DE AULA crie um aquecimento diferente e variado:
+
+DIA 1 — [NOME E TIPO]
+• Duração: X min
+• Descrição completa e desenvolvimento
+• Materiais necessários
+• Conexão com o tema do dia
+• Pergunta de encerramento
+
+[Repetir por ${d} da semana]
+Certifique-se de que o ${d} ser complementar e variado:
+- Usar tipos diferentes (não repetir o mesmo formato)
+- Progressão lógica durante a semana (Segunda-feira: ativação → Sexta-feira: reflexão e síntese)
+- Materiais mínimos (sem preparação complexa)
+- Conexão sempre direta com ${t}
+
+Finalize com DICA DE ENSINO: como adaptar esses aquecimentos caso uma sessão dê errado ou seja necessário mais tempo para o conteúdo.`;
+  },
+
+  'warmup-musical':()=>{
+    const m=document.getElementById('music-materia').value||'[disciplina]';
+    const tipo=document.getElementById('music-tipo').value;
+    const act=document.getElementById('music-actividad').value;
+    const edad=document.getElementById('music-edad').value||'adolescentes';
+    return `Ele atua como um professor criativo, especialista em cultura e educação digital. Projete um AQUECIMENTO COM BASE EM ${tipo.toUpperCase()} para ${m}, estudantes de ${edad}.
+Atividade subsequente: ${act}
+
+O aquecimento musical/criativo inclui:
+1. RECURSO RECOMENDADO
+• Título exato e como acessá-lo (YouTube, Spotify, URL da imagem...)
+• Por que este recurso específico é ideal para ${edad}
+   • O que conecta este recurso ao tópico de ${m}?
+2. ALTERNATIVAS (2 opções adicionais)
+Caso o recurso principal não esteja disponível ou não funcione
+3. PROTOCOLO DE USO DA AULA
+• Como apresentar o recurso (sem estragar)
+• Tempo de exposição/escuta
+• Com ou sem contexto prévio?
+4. ATIVIDADE: ${act}
+   Instruções detalhadas para alunos
+   Tempo alocado: X min
+
+5. COMUNHÃO
+   • Como coletar respostas do grupo
+   • 2 a 3 questões para discussão com base no que surgiu
+
+6. TRANSIÇÃO PARA O CONTEÚDO
+   A frase exata para passar do aquecimento ao tema principal da sessão`;
+  }
+};
+
+function generateAndShow(key){
+  const prompt=PROMPTS[key]();
+  const el=document.getElementById('result-'+key);
+  el.textContent=prompt;
+  el.classList.add('show');
+  const btn=document.getElementById('copy-'+key);
+  if(btn)btn.style.display='inline-flex';
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function copyPrompt(key){
+  const el=document.getElementById('result-'+key);
+  navigator.clipboard.writeText(el.textContent).then(()=>{
+    const btn=document.getElementById('copy-'+key);
+    if(btn){btn.classList.add('copied');btn.innerHTML="<i class=\"fas fa-check\"></i>Copiado!";}
+    showToast("✅ Prompt copiado");
+    setTimeout(()=>{if(btn){btn.classList.remove('copied');btn.innerHTML="Cópia<i class=\"fas fa-copy\"></i>";}},2000);
+  });
+}
+</script>
+  <script src="../assets/portal-nav.js"></script>
+</body>
+</html>

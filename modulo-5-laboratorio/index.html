@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Módulo 5 — Simulador Laboratorial e Educacional | EDOCENTIA</title>
+<meta name="description" content="Projete práticas de laboratório, experimentos e simuladores educacionais para aprender conceitos. Alertas prontos para IA. Por EDOCENTIA.">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b}
+#scroll-progress{position:fixed;top:0;left:0;width:0;height:4px;background:linear-gradient(90deg,#78716c,#a8a29e,#f97316);z-index:9999}
+.hero-section{background-image:linear-gradient(135deg,rgba(41,37,36,.94) 0%,rgba(68,64,60,.9) 60%,rgba(120,113,108,.85) 100%),url('https://images.unsplash.com/photo-1582719471384-894fbb16e074?q=80&w=2000&auto=format&fit=crop');background-size:cover;background-position:center;background-attachment:fixed}
+.hero-shimmer{background:linear-gradient(90deg,#fff 40%,rgba(255,255,255,.6) 50%,#fff 60%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 4s linear infinite}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+.card-pro{background:#fff;border-radius:1.25rem;box-shadow:0 4px 20px rgba(0,0,0,.05);border:1px solid rgba(0,0,0,.04);transition:.3s}
+.card-pro:hover{transform:translateY(-2px);box-shadow:0 12px 35px rgba(0,0,0,.09)}
+aside nav a{transition:.25s;color:#475569;border-left:3px solid transparent;display:flex;align-items:center;gap:.6rem;padding:.6rem .9rem;border-radius:.75rem;font-size:.85rem;font-weight:500;text-decoration:none}
+aside nav a:hover{background:linear-gradient(90deg,rgba(120,113,108,.1),transparent)!important;color:#57534e;border-left-color:#78716c;padding-left:1.2rem;font-weight:700}
+#sidebar-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:999;background:linear-gradient(135deg,#78716c,#a8a29e);color:#fff;border:none;width:2.8rem;height:2.8rem;border-radius:.9rem;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer}
+#sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(4px);z-index:490}
+@media(max-width:1023px){#sidebar-toggle{display:flex}aside{position:fixed!important;top:0;left:0;height:100dvh!important;width:85vw!important;max-width:340px!important;z-index:500;transform:translateX(-110%);transition:.35s;overflow-y:auto}aside.sidebar-open{transform:translateX(0)}#sidebar-backdrop.active{display:block}#main-content{width:100%!important}}
+details summary{user-select:none;cursor:pointer;list-style:none;outline:none}
+details summary::-webkit-details-marker{display:none}
+details summary .chev{transition:.3s}
+details[open] summary .chev{transform:rotate(180deg)}
+.field-label{display:block;font-size:.8rem;font-weight:700;color:#57534e;margin-bottom:.35rem}
+.field-input{width:100%;border:1.5px solid #e7e5e4;border-radius:.65rem;padding:.55rem .85rem;font-size:.85rem;color:#1e293b;font-family:'Plus Jakarta Sans',sans-serif;background:#fafaf9;transition:.2s;outline:none}
+.field-input:focus{border-color:#78716c;box-shadow:0 0 0 3px rgba(120,113,108,.12);background:#fff}
+.field-input::placeholder{color:#94a3b8}
+.field-group{margin-bottom:1rem}
+.gen-btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.6rem;border-radius:.85rem;font-weight:700;font-size:.9rem;cursor:pointer;transition:.25s;border:none;width:100%;margin-top:.5rem}
+.gen-btn-stone{background:linear-gradient(135deg,#78716c,#a8a29e);color:#fff;box-shadow:0 4px 16px rgba(120,113,108,.35)}
+.gen-btn-stone:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(120,113,108,.5)}
+.gen-btn-orange{background:linear-gradient(135deg,#f97316,#fb923c);color:#fff;box-shadow:0 4px 16px rgba(249,115,22,.3)}
+.gen-btn-orange:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(249,115,22,.45)}
+.prompt-result{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:.75rem;padding:1.25rem;font-size:.8rem;line-height:1.7;color:#475569;white-space:pre-wrap;max-height:250px;overflow-y:auto;display:none;margin-top:.75rem}
+.prompt-result.show{display:block}
+.copy-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1.1rem;background:rgba(120,113,108,.1);border:1px dashed rgba(120,113,108,.4);border-radius:.6rem;color:#57534e;font-size:.78rem;font-weight:700;cursor:pointer;transition:.2s;margin-top:.5rem}
+.copy-btn:hover{background:rgba(120,113,108,.18);border-style:solid}
+.copy-btn.copied{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.4);color:#059669}
+.prompt-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:1rem;padding:1.5rem;transition:.3s;margin-bottom:1rem}
+.prompt-card:hover{border-color:rgba(120,113,108,.3);box-shadow:0 8px 30px rgba(120,113,108,.09)}
+.fade-in{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s cubic-bezier(.4,0,.2,1)}
+.fade-in.in-view{opacity:1;transform:translateY(0)}
+#toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(80px);background:#1e293b;color:#fff;padding:.75rem 1.5rem;border-radius:1rem;font-size:.85rem;font-weight:600;z-index:9999;transition:.3s;display:flex;align-items:center;gap:.5rem}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#back-to-top{position:fixed;bottom:2rem;right:2rem;width:3rem;height:3rem;background:linear-gradient(135deg,#78716c,#a8a29e);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;pointer-events:none;transform:translateY(20px);transition:.3s;z-index:998;border:none}
+#back-to-top.visible{opacity:1;pointer-events:all;transform:translateY(0)}
+.cat-icon{width:2.5rem;height:2.5rem;border-radius:.9rem;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.lab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}
+@media(max-width:640px){.lab-grid{grid-template-columns:1fr}}
+</style>
+  <link rel="stylesheet" href="../assets/portal-nav.css">
+</head>
+<body class="antialiased">
+<div id="scroll-progress"></div>
+<button id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+<div id="sidebar-backdrop"></div>
+<button id="back-to-top"><i class="fas fa-arrow-up"></i></button>
+<div id="toast"><i class="fas fa-flask text-orange-400"></i> <span id="toast-msg">Pronto!</span></div>
+
+<div class="flex min-h-screen">
+<aside class="w-64 flex-shrink-0 bg-white border-r border-slate-100 shadow-sm sticky top-0 h-screen overflow-y-auto z-50">
+  <div class="p-5 border-b border-slate-100">
+    <div class="flex items-center gap-2.5 mb-1">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-stone-500 to-stone-700 flex items-center justify-center text-white shadow text-base">🧪</div>
+      <div><div class="font-extrabold text-slate-800 text-sm leading-tight">Laboratório e Simulador</div><div class="text-xs text-slate-400">Módulo 05 · EDOCENTIA</div></div>
+    </div>
+  </div>
+  <nav class="p-3 space-y-0.5">
+    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest px-2 pt-3 pb-1">Peças do módulo</p>
+    <a href="#parte-1"><i class="fas fa-flask w-4 text-orange-500"></i> Prática de Laboratório</a>
+    <a href="#parte-2"><i class="fas fa-desktop w-4 text-blue-500"></i> Simulador Educacional HTML</a>
+    <a href="#parte-3"><i class="fas fa-microscope w-4 text-green-500"></i> Home Experimentos</a>
+    <a href="#parte-4"><i class="fas fa-vr-cardboard w-4 text-violet-500"></i> Laboratório Virtual</a>
+    <a href="#parte-5"><i class="fas fa-clipboard-list w-4 text-red-500"></i> Relatório de Laboratório</a>
+    <hr class="my-2 border-slate-100">
+    <a href="../index.html"><i class="fas fa-home w-4 text-slate-400"></i> Homepage EDOCENTIA</a>
+    <a href="../app-ia.html"><i class="fas fa-robot w-4 text-violet-500"></i> Aplicativo interativo de IA</a>
+  </nav>
+</aside>
+
+<main id="main-content" class="flex-1 min-w-0">
+<section class="hero-section text-white py-16 px-8 md:px-14">
+  <div class="max-w-4xl">
+    <a href="../index.html" class="inline-flex items-center gap-2 text-white/70 hover:text-white text-xs font-semibold mb-5 transition-colors"><i class="fas fa-arrow-left"></i> Voltar para EDOCENTIA</a>
+    <div class="inline-flex items-center gap-2 bg-white/15 border border-white/25 rounded-full px-4 py-1.5 text-xs font-semibold mb-4 backdrop-blur-sm">
+      <i class="fas fa-flask text-orange-300"></i> Módulo 05 — Experimentação e Descoberta
+    </div>
+    <h1 class="text-3xl md:text-5xl font-extrabold leading-tight mb-3 hero-shimmer">Laboratório e<br>Simulador Educacional</h1>
+    <p class="text-base text-white/85 max-w-2xl leading-relaxed mb-5">Projete práticas de laboratório, experimentos e simuladores interativos. Gere guias completos de experimentação e aplicativos HTML que funcionam como laboratórios virtuais de aprendizagem.</p>
+    <div class="flex flex-wrap gap-3">
+      <a href="#parte-1" class="bg-white text-stone-700 font-bold px-5 py-2.5 rounded-xl text-sm shadow hover:-translate-y-0.5 transition-all">🧪 Laboratório prático</a>
+      <a href="#parte-2" class="bg-white/15 border border-white/30 text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-white/25 transition-all">💻 Simulador HTML</a>
+      <a href="#parte-3" class="bg-white/15 border border-white/30 text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-white/25 transition-all">🏠 Em casa</a>
+    </div>
+  </div>
+</section>
+
+<div class="max-w-5xl mx-auto px-5 md:px-10 py-10 space-y-8">
+
+<!-- PARTE 1: PRÁCTICA DE LABORATORIO -->
+<div id="parte-1" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100" open>
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-orange-100 text-orange-700">🧪</div>
+    <div><div class="font-bold text-slate-800">Parte 1 - Guia de Prática de Laboratório</div><div class="text-xs text-slate-400">Projeto completo de experimentos pedagógicos e seguros</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+
+<div class="bg-orange-50 border border-orange-100 rounded-xl p-4 mb-4 text-sm text-orange-800">
+  <i class="fas fa-shield-alt mr-1 text-orange-600"></i> <strong>Segurança em primeiro lugar:</strong> Todas as instruções incluem protocolo de segurança completo e EPI necessários para a prática.
+</div>
+
+<div class="lab-grid">
+<div class="prompt-card">
+  <div class="text-2xl mb-2">⚗️</div>
+  <div class="font-bold text-slate-700 text-sm mb-3">Projeto completo de prática de laboratório</div>
+  <div class="field-group"><label class="field-label">📚 Assunto e nível</label><input type="text" class="field-input" id="lab-materia" placeholder="Ex: Física e Química 3º ESO"></div>
+  <div class="field-group"><label class="field-label">🔬 Conceito para demonstrar</label><input type="text" class="field-input" id="lab-concepto" placeholder="Ex: a reação de neutralização ácido-base"></div>
+  <div class="field-group"><label class="field-label">⚙️ Materiais disponíveis</label><input type="text" class="field-input" id="lab-materiales" placeholder="Ex: vidrarias básicas, indicadores, vinagre, bicarbonato de sódio..."></div>
+  <div class="field-group"><label class="field-label">⏱️ Duração da prática</label><select class="field-input" id="lab-duracion"><option>45 min (1 sessão)</option><option selected>55 min (1 sessão)</option><option>110 min (2 sessões)</option></select></div>
+  <button class="gen-btn gen-btn-stone" onclick="generateAndShow('practica-lab')"><i class="fas fa-flask"></i> Gerar guia de laboratório</button>
+  <div class="prompt-result" id="result-practica-lab"></div>
+  <button class="copy-btn" id="copy-practica-lab" onclick="copyPrompt('practica-lab')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+</div>
+
+<div class="prompt-card">
+  <div class="text-2xl mb-2">📊</div>
+  <div class="font-bold text-slate-700 text-sm mb-3">Bancada de prática para uma unidade</div>
+  <div class="field-group"><label class="field-label">📚 Assunto e unidade</label><input type="text" class="field-input" id="banco-lab" placeholder="Ex: Biologia - Unidade celular"></div>
+  <div class="field-group"><label class="field-label">🔢 Número de práticas</label><select class="field-input" id="banco-lab-num"><option>3 práticas</option><option selected>5 práticas</option><option>8 práticas</option></select></div>
+  <button class="gen-btn gen-btn-orange" onclick="generateAndShow('banco-lab')"><i class="fas fa-list"></i> Gerar banco</button>
+  <div class="prompt-result" id="result-banco-lab"></div>
+  <button class="copy-btn" id="copy-banco-lab" onclick="copyPrompt('banco-lab')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+</div>
+</div>
+
+</div>
+</details>
+</div>
+
+<!-- PARTE 2: SIMULADOR EDUCATIVO HTML -->
+<div id="parte-2" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-blue-100 text-blue-700">💻</div>
+    <div><div class="font-bold text-slate-800">Parte 2 — Simulador educacional HTML interativo</div><div class="text-xs text-slate-400">Gerar aplicativos HTML que simulam fenômenos e processos para aprender</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+
+<div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-4 text-sm text-blue-800">
+  <i class="fas fa-code mr-1 text-blue-600"></i> <strong>Codificação educacional Vibe:</strong> Use este prompt com Claude (Artefatos), ChatGPT (Canvas) ou Gemini para obter um aplicativo HTML pronto para uso em sua sala de aula sem nenhum conhecimento de programação.
+</div>
+
+<div class="prompt-card">
+  <div class="font-bold text-slate-700 text-sm mb-3">💻 Simulador educacional interativo HTML (Vibe Coding)</div>
+  <div class="grid md:grid-cols-2 gap-3">
+    <div class="field-group"><label class="field-label">📚 Assunto e conceito para simular</label><input type="text" class="field-input" id="sim-concepto" placeholder="Ex: o ciclo da água / o sistema solar / mitose"></div>
+    <div class="field-group"><label class="field-label">🎯 Nível estudante</label><input type="text" class="field-input" id="sim-nivel" placeholder="Ex: 2º ESO (13-14 anos)"></div>
+    <div class="field-group"><label class="field-label">🎮 Tipo de interação</label><select class="field-input" id="sim-tipo"><option selected>Simulação visual animada</option><option>Questionário interativo com feedback</option><option>Laboratório virtual com controles</option><option>Jogo educativo (pontos)</option><option>Diagrama interativo</option><option>Linha do tempo/mapa interativo</option></select></div>
+    <div class="field-group"><label class="field-label">🎨 Layout preferido</label><select class="field-input" id="sim-diseño"><option selected>Colorido e atraente para adolescentes</option><option>Científico e sério</option><option>Gamificado com pontos e conquistas</option><option>Minimalista e fácil</option></select></div>
+  </div>
+  <textarea class="field-input mt-1" id="sim-extra" placeholder="Elementos detalhes que você deseja incluir, interações específicas ou operação desejada..." style="min-height:60px"></textarea>
+  <button class="gen-btn gen-btn-stone" onclick="generateAndShow('simulador-html')"><i class="fas fa-code"></i> Gerar prompt do simulador</button>
+  <div class="prompt-result" id="result-simulador-html"></div>
+  <button class="copy-btn" id="copy-simulador-html" onclick="copyPrompt('simulador-html')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+</div>
+
+</div>
+</details>
+</div>
+
+<!-- PARTE 3: EXPERIMENTOS EN CASA -->
+<div id="parte-3" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-green-100 text-green-700">🏠</div>
+    <div><div class="font-bold text-slate-800">Parte 3 — Experimentos em casa (sem laboratório)</div><div class="text-xs text-slate-400">Experimentos com materiais do dia a dia para fazer em casa ou sem instalações</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+
+<div class="prompt-card">
+  <div class="font-bold text-slate-700 text-sm mb-3">🏠 Experiência com materiais do dia a dia (sem laboratório)</div>
+  <div class="grid md:grid-cols-2 gap-3">
+    <div class="field-group"><label class="field-label">📚 Conceito científico a ser demonstrado</label><input type="text" class="field-input" id="casa-concepto" placeholder="Ex: densidade / pressão do ar / pH..."></div>
+    <div class="field-group"><label class="field-label">🎯 Nível estudante</label><select class="field-input" id="casa-nivel"><option>Primário (6-12 anos)</option><option selected>ESO (12-16 anos)</option><option>Bacharelado (16-18 anos)</option></select></div>
+    <div class="field-group"><label class="field-label">🏠 Contexto</label><select class="field-input" id="casa-contexto"><option selected>Trabalho de casa</option><option>Sem laboratório no centro</option><option>Aula ao ar livre</option><option>Substituição da prática laboratorial</option></select></div>
+    <div class="field-group"><label class="field-label">📋 Entrega alguma coisa?</label><select class="field-input" id="casa-entrega"><option selected>Reportagem fotográfica + perguntas</option><option>Vídeo de demonstração</option><option>Formulário de resultados</option><option>Eles apenas realizam o experimento</option></select></div>
+  </div>
+  <button class="gen-btn gen-btn-stone" onclick="generateAndShow('experimento-casa')"><i class="fas fa-home"></i> Gerar experimento</button>
+  <div class="prompt-result" id="result-experimento-casa"></div>
+  <button class="copy-btn" id="copy-experimento-casa" onclick="copyPrompt('experimento-casa')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+</div>
+
+</div>
+</details>
+</div>
+
+<!-- PARTE 4: LABORATORIO VIRTUAL -->
+<div id="parte-4" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-violet-100 text-violet-700">🥽</div>
+    <div><div class="font-bold text-slate-800">Parte 4 — Laboratório Virtual e Recursos Digitais</div><div class="text-xs text-slate-400">PhET, Labster, GeoGebra e outras plataformas de simulação</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+
+<div class="prompt-card">
+  <div class="font-bold text-slate-700 text-sm mb-3">🥽 Guia pedagógico para utilização de laboratório virtual</div>
+  <div class="grid md:grid-cols-2 gap-3">
+    <div class="field-group"><label class="field-label">📚 Assunto e conceito</label><input type="text" class="field-input" id="virt-concepto" placeholder="Ex: Física 2º Bach — Circuitos elétricos"></div>
+    <div class="field-group"><label class="field-label">💻 Plataforma para usar</label><select class="field-input" id="virt-plataforma"><option selected>Simulações interativas PhET (Colorado)</option><option>GeoGebra</option><option>Tinkercad (eletrônicos)</option><option>Labster</option><option>Khan Academy</option><option>Qualquer plataforma (recomendo)</option></select></div>
+    <div class="field-group"><label class="field-label">⏱️ Sessões disponíveis</label><input type="text" class="field-input" id="virt-sesiones" placeholder="Ex: 2 sessões de 55 min"></div>
+    <div class="field-group"><label class="field-label">📋 Produto entregue pelos alunos</label><input type="text" class="field-input" id="virt-producto" placeholder="Ex: relatório de prática, capturas de tela + análise ..."></div>
+  </div>
+  <button class="gen-btn gen-btn-stone" onclick="generateAndShow('lab-virtual')"><i class="fas fa-vr-cardboard"></i> Gerar guia de laboratório virtual</button>
+  <div class="prompt-result" id="result-lab-virtual"></div>
+  <button class="copy-btn" id="copy-lab-virtual" onclick="copyPrompt('lab-virtual')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+</div>
+
+</div>
+</details>
+</div>
+
+<!-- PARTE 5: INFORME DE LABORATORIO -->
+<div id="parte-5" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3">
+    <div class="cat-icon bg-red-100 text-red-700">📄</div>
+    <div><div class="font-bold text-slate-800">Parte 5 - Relatório de laboratório e avaliação</div><div class="text-xs text-slate-400">Relatório de modelos, rubricas e guias de correção</div></div>
+  </div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+
+<div class="prompt-card">
+  <div class="font-bold text-slate-700 text-sm mb-3">📄 Modelo de relatório científico + rubrica de avaliação</div>
+  <div class="grid md:grid-cols-2 gap-3">
+    <div class="field-group"><label class="field-label">📚 Assunto e nível</label><input type="text" class="field-input" id="inf-materia" placeholder="Ex: Biologia e Geologia 3º ESO"></div>
+    <div class="field-group"><label class="field-label">🔬 Prática realizada</label><input type="text" class="field-input" id="inf-practica" placeholder="Ex: Observação de células ao microscópio"></div>
+    <div class="field-group"><label class="field-label">📊 Seções do relatório</label><select class="field-input" id="inf-secciones"><option selected>Completo (científico rigoroso)</option><option>Simplificado (ESO)</option><option>Muito simplificado (guiado)</option></select></div>
+    <div class="field-group"><label class="field-label">👥 Tipo de entrega</label><select class="field-input" id="inf-entrega"><option selected>Individual</option><option>Em pares</option><option>Grupo</option></select></div>
+  </div>
+  <button class="gen-btn gen-btn-stone" onclick="generateAndShow('informe-lab')"><i class="fas fa-clipboard-list"></i> Gerar relatório + rubrica</button>
+  <div class="prompt-result" id="result-informe-lab"></div>
+  <button class="copy-btn" id="copy-informe-lab" onclick="copyPrompt('informe-lab')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+</div>
+
+</div>
+</details>
+</div>
+
+</div>
+</main>
+</div>
+
+<script>
+window.addEventListener('scroll',()=>{document.getElementById('scroll-progress').style.width=(window.scrollY/(document.body.scrollHeight-window.innerHeight))*100+'%';document.getElementById('back-to-top').classList.toggle('visible',window.scrollY>400);});
+document.getElementById('back-to-top').onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+const io=new IntersectionObserver(e=>e.forEach(en=>{if(en.isIntersecting)en.target.classList.add('in-view')}),{threshold:.08});
+document.querySelectorAll('.fade-in').forEach(el=>io.observe(el));
+const toggle=document.getElementById('sidebar-toggle');
+const aside=document.querySelector('aside');
+const backdrop=document.getElementById('sidebar-backdrop');
+toggle.onclick=()=>{aside.classList.toggle('sidebar-open');backdrop.classList.toggle('active')};
+backdrop.onclick=()=>{aside.classList.remove('sidebar-open');backdrop.classList.remove('active')};
+function showToast(msg){document.getElementById('toast-msg').textContent=msg;document.getElementById('toast').classList.add('show');setTimeout(()=>document.getElementById('toast').classList.remove('show'),2500);}
+
+const PROMPTS={
+  'practica-lab':()=>{const m=document.getElementById('lab-materia').value||'[disciplina]';const c=document.getElementById('lab-concepto').value||'[concepto]';const mat=document.getElementById('lab-materiales').value||"material de laboratório padrão";const d=document.getElementById('lab-duracion').value;return `Atua como professor de ciências experimentais, especialista em segurança laboratorial. Projete um GUIA DE PRÁTICAS DE LABORATÓRIO COMPLETO para ${m}.
+CONCEITO A SER DEMONSTRADO: ${c}
+MATERIAIS DISPONÍVEIS: ${mat}
+DURAÇÃO: ${d}
+
+1. INFORMAÇÕES GERAIS
+• Título da prática
+• Nível curricular e vinculação com critérios de avaliação
+• Objetivo didático: o que os alunos vão aprender
+• Conhecimentos básicos que funcionam
+2. FUNDAMENTO TEÓRICO (breve)
+• Explicação do fenômeno que será observado/demonstrado
+• Conceitos-chave que os alunos devem conhecer ANTES da prática
+3. PROTOCOLO DE SEGURANÇA (OBRIGATÓRIO)
+• EPI necessários (luvas, óculos, bata, etc.)
+• Riscos potenciais e como prevenir
+• O que fazer em caso de acidente
+• Resíduos: como descartá-los
+4. MATERIAIS E REAGENTES
+• Lista completa e detalhada
+• Possíveis substitutos se algum material não estiver disponível
+5. EXPERIMENTAL PROCEDIMENTO
+Passo a passo muito claro e numerado:
+• Passo 1: [ação exata]
+• Passo 2: [ação exata]
+• ...
+Inclui: diagramas de montagem do sistema experimental (descrição textual de como desenhá-lo)
+6. RESULTADOS TABELA
+• Modelo para os alunos anotarem seus dados
+• Magnitudes, unidades e número de medidas
+7. ANÁLISE E DISCUSSÃO
+• Perguntas orientadas para analisar os resultados
+• Como conectar o que foi observado com a teoria
+• Fontes de erro mais comuns e como detectar eles
+8. CONCLUSÕES
+• Guia para os alunos escreverem suas conclusões
+• Perguntas para verificar a compreensão
+9. EXTENSÃO (para alunos avançados)
+• Variação do experimento que adiciona complexidade
+• Pergunta de pesquisa aberta`},
+
+  'banco-lab':()=>{const b=document.getElementById('banco-lab').value||"[disciplina e unidade]";const n=document.getElementById('banco-lab-num').value;return `Atua como professor de ciências experimentais. Projete um BANCO DE ${n} PARA ${b}.
+Para cada prática que fornece:
+PRÁTICA [N]: [TÍTULO]
+• Conceito demonstrado
+• Nível de complexidade: básico/médio/avançado
+• Duração: X minutos
+• Materiais principais (3-5 elementos principais)
+• Tipo: presencial em laboratório / em casa / virtual / demonstração
+• Breve descrição do procedimento (4-5 passos)
+• O que os alunos VERÃO/DESCOBRIREM
+• Avaliação: como esta prática é avaliada
+JÁ: variam tipos (presencial, domiciliar, virtual), nível e conceito.
+Termina com TABELA RESUMO do ${n} com: título, conceito, tipo, duração, complexidade.`},
+
+  'simulador-html':()=>{const c=document.getElementById('sim-concepto').value||'[concepto]';const n=document.getElementById('sim-nivel').value||'ESO';const t=document.getElementById('sim-tipo').value;const d=document.getElementById("sim-design").value;const e=document.getElementById('sim-extra').value;return `Atuar como um desenvolvedor web educacional especializado em Vibe Coding. Crie um SIMULADOR EDUCACIONAL INTERATIVO EM HTML/CSS/JS (um único arquivo .html) que simule ou ensine: "${c}" para alunos de ${n}.
+TIPO DE SIMULAÇÃO: ${t}
+ESTILO VISUAL: ${d}\n${e?"ELEMENTOS ESPECÍFICOS: "+e:''}
+
+REQUISITOS TÉCNICOS:
+• Um único arquivo .html independente (sem dependências externas, exceto CDN)
+• Compatível com qualquer navegador moderno
+• Responsivo (funciona em tablets e computadores)
+• Não requer backend ou banco de dados
+REQUISITOS PEDAGÓGICOS:
+• Nível de dificuldade adaptado para ${n}
+• Instruções claras na tela em espanhol
+• Feedback imediato quando o usuário interage
+• Pelo menos 3 elementos interativos (controles deslizantes, botões, cliques...)
+• Informações científicas/educacionais corretas e precisas
+ESTRUTURA DO SIMULADOR:
+1. Tela de apresentação com objetivo de aprendizagem
+2. Área principal de simulação/interação
+3. Painel de controle ou variáveis que o usuário pode modificar
+4. Área de feedback e explicação do que acontece
+5. Perguntas de reflexão no final (mínimo 3)
+6. Botão de reset
+A: design ${d}, animações suaves, cores atraentes para ${n}.`},
+
+  'experimento-casa':()=>{const c=document.getElementById('casa-concepto').value||'[concepto]';const n=document.getElementById('casa-nivel').value;const ctx=document.getElementById('casa-contexto').value;const e=document.getElementById('casa-entrega').value;return `Atua como comunicador científico e professor. Projete um EXPERIMENTO EM CASA para demonstrar "${c}" para alunos de ${n}. CONTEXTO
+: ${ctx}
+O QUE ELES ENTREGARÃO: ${e}
+
+1. TÍTULO ATRATIVO
+(Com intriga ou pergunta que desperte curiosidade)
+2. PERGUNTA DE PESQUISA
+O que você deseja descobrir com este experimento?
+3. MATERIAIS (somente o que há em qualquer casa)
+• Lista exata com quantidades
+• Alternativas se algum material não estiver disponível
+4. PROCEDIMENTO (passo a passo com fotos mentais)
+Cada passo numerado, claro e com detalhes:
+• Passo 1: ...
+• Passo 2: ...
+(Mínimo 5 passos)
+Inclui: FOTO/VÍDEO que devem fazer em cada passo chave
+5. O QUE DEVEM PROCURAR?
+Pistas sobre o que observar, medir ou registrar
+6. TABELA DE DADOS
+Modelo simples para registrar observações
+7. EXPLICAÇÃO CIENTÍFICA
+Por que o que acontece acontece (no nível de ${n})
+8. GUIA DE ENTREGA: ${e}
+Instruções exatas para completar ${e}
+
+9. PERGUNTAS DE REFLEXÃO
+5 perguntas que os alunos devem responder
+10. SEGURANÇA
+Aviso sobre precauções específicas para este experimento`},
+
+  'lab-virtual':()=>{const c=document.getElementById('virt-concepto').value||'[concepto]';const p=document.getElementById('virt-plataforma').value;const s=document.getElementById('virt-sesiones').value||"2 sessões";const prod=document.getElementById('virt-producto').value||"relatório prático";return `Atua como professor especialista em tecnologia educacional. Projete um GUIA DE ENSINO COMPLETO para usar ${p}  ${c}, durante ${s}. PRODUTO ESTUDANTE
+: ${prod}
+
+1. DESCRIÇÃO DO RECURSO DIGITAL
+• O que é ${p} e como funciona?
+• URL de acesso e necessidade de registro ou não
+• Compatibilidade (dispositivos, navegadores)
+2. PREPARAÇÃO DO PROFESSOR
+• Como acessar a simulação ${c}
+• O que configurar antes da aula
+• Como projetar para uma demonstração inicial
+3. SCRIPT ${s.toUpperCase()}
+Para cada sessão:
+• SESSÃO [N] — [OBJETIVO]
+- Ativação (5 min): o que fazer antes de abrir o simulador
+- Exploração (X min): tarefa guiada no simulador
+- Perguntas norteadoras: o que observar, modificar e registrar
+- Fechamento (5 min): síntese e conexão com a teoria
+4. GUIA DO ALUNO
+(Folha que eles podem seguir de forma independente)
+• Instruções passo a passo para navegar ${p}
+• Tabela de dados para registro
+• Questões de análise
+5. PRODUTO: ${prod}
+Como prepará-lo, que seções incluir, como é avaliado
+6. AVALIAÇÃO
+• Rubrica específica para uso do laboratório virtual
+• Como diferenciar entre copiar e compreender`},
+
+  'informe-lab':()=>{const m=document.getElementById('inf-materia').value||'[disciplina]';const p=document.getElementById('inf-practica').value||"[prática]";const s=document.getElementById('inf-secciones').value;const e=document.getElementById('inf-entrega').value;return `Atua como professor de ciências. Crie um MODELO DE RELATÓRIO CIENTÍFICO + RUBRICA para ${m}: "${p}".
+NÍVEL DE RELATÓRIO: ${s}
+ENTREGA
+: ${e}
+
+PARTE 1: MODELO DE RELATÓRIO
+Seções do relatório (${s}):
+[Para cada seção]: nome, descrição do que deve incluir, espaço indicativo
+Seções incluídas na versão ${s}:
+• Título e dados do aluno/grupo
+• Objetivo da prática
+• Materiais
+• Procedimento (resumo)
+• Observações e dados (tabela)
+• Análise dos resultados
+• Conclusões
+• Questões para discussão
+[Adaptar ao nível solicitado: ${s}]
+
+PARTE 2: RUBRICA DE AVALIAÇÃO DO RELATÓRIO
+
+Critérios (com peso%):
+1. Rigor científico dos dados → X%
+2. Clareza e organização → X%
+3. Análise e conclusões → X%
+4. Apresentação e formato → X%
+
+Para cada critério: 4 níveis de realização (Início/Em andamento/Consolidado/Avançado) com descritores específicos
+
+PARTE 3: BANCO DE COMENTÁRIOS DE FEEDBACK
+5 comentários típicos para os erros mais comuns em relatórios ${m}`}
+};
+
+function generateAndShow(key){const prompt=PROMPTS[key]();const el=document.getElementById('result-'+key);el.textContent=prompt;el.classList.add('show');const btn=document.getElementById('copy-'+key);if(btn)btn.style.display='inline-flex';el.scrollIntoView({behavior:'smooth',block:'nearest'});}
+function copyPrompt(key){const el=document.getElementById('result-'+key);navigator.clipboard.writeText(el.textContent).then(()=>{const btn=document.getElementById('copy-'+key);if(btn){btn.classList.add('copied');btn.innerHTML="<i class=\"fas fa-check\"></i>Copiado!";}showToast("✅ Prompt copiado");setTimeout(()=>{if(btn){btn.classList.remove('copied');btn.innerHTML="Cópia<i class=\"fas fa-copy\"></i>";}},2000);});}
+</script>
+  <script src="../assets/portal-nav.js"></script>
+</body>
+</html>

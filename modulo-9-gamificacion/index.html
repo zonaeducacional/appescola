@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Módulo 9 — Gamificação Educacional | EDOCENTIA</title>
+<meta name="description" content="Gamifique sua sala de aula: sistemas de pontos, missões, avatares, tabelas de classificação e salas de fuga educacionais. Alertas prontos para IA. Por EDOCENTIA.">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b}
+#scroll-progress{position:fixed;top:0;left:0;width:0;height:4px;background:linear-gradient(90deg,#a855f7,#ec4899,#f97316);z-index:9999}
+.hero-section{background-image:linear-gradient(135deg,rgba(88,28,135,.93) 0%,rgba(124,58,237,.9) 60%,rgba(168,85,247,.85) 100%),url('https://images.unsplash.com/photo-1553481187-be93c21490a9?q=80&w=2000&auto=format&fit=crop');background-size:cover;background-position:center;background-attachment:fixed}
+.hero-shimmer{background:linear-gradient(90deg,#fff 40%,rgba(255,255,255,.6) 50%,#fff 60%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 4s linear infinite}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+.card-pro{background:#fff;border-radius:1.25rem;box-shadow:0 4px 20px rgba(0,0,0,.05);border:1px solid rgba(0,0,0,.04);transition:.3s}
+.card-pro:hover{transform:translateY(-2px);box-shadow:0 12px 35px rgba(0,0,0,.09)}
+aside nav a{transition:.25s;color:#475569;border-left:3px solid transparent;display:flex;align-items:center;gap:.6rem;padding:.6rem .9rem;border-radius:.75rem;font-size:.85rem;font-weight:500;text-decoration:none}
+aside nav a:hover{background:linear-gradient(90deg,rgba(168,85,247,.1),transparent)!important;color:#9333ea;border-left-color:#a855f7;padding-left:1.2rem;font-weight:700}
+#sidebar-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:999;background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff;border:none;width:2.8rem;height:2.8rem;border-radius:.9rem;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer}
+#sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:490}
+@media(max-width:1023px){#sidebar-toggle{display:flex}aside{position:fixed!important;top:0;left:0;height:100dvh!important;width:85vw!important;max-width:340px!important;z-index:500;transform:translateX(-110%);transition:.35s;overflow-y:auto}aside.sidebar-open{transform:translateX(0)}#sidebar-backdrop.active{display:block}#main-content{width:100%!important}}
+details summary{user-select:none;cursor:pointer;list-style:none;outline:none}
+details summary::-webkit-details-marker{display:none}
+details summary .chev{transition:.3s}
+details[open] summary .chev{transform:rotate(180deg)}
+.field-label{display:block;font-size:.8rem;font-weight:700;color:#9333ea;margin-bottom:.35rem}
+.field-input{width:100%;border:1.5px solid #e9d5ff;border-radius:.65rem;padding:.55rem .85rem;font-size:.85rem;color:#1e293b;font-family:'Plus Jakarta Sans',sans-serif;background:#faf5ff;transition:.2s;outline:none}
+.field-input:focus{border-color:#a855f7;box-shadow:0 0 0 3px rgba(168,85,247,.12);background:#fff}
+.field-input::placeholder{color:#94a3b8}
+.field-group{margin-bottom:1rem}
+textarea.field-input{resize:vertical;min-height:70px}
+.gen-btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.6rem;border-radius:.85rem;font-weight:700;font-size:.9rem;cursor:pointer;transition:.25s;border:none;width:100%;margin-top:.5rem}
+.gen-btn-purple{background:linear-gradient(135deg,#a855f7,#c084fc);color:#fff;box-shadow:0 4px 16px rgba(168,85,247,.35)}
+.gen-btn-purple:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(168,85,247,.5)}
+.gen-btn-pink{background:linear-gradient(135deg,#ec4899,#f9a8d4);color:#fff;box-shadow:0 4px 16px rgba(236,72,153,.3)}
+.gen-btn-pink:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(236,72,153,.45)}
+.prompt-result{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:.75rem;padding:1.25rem;font-size:.8rem;line-height:1.7;color:#475569;white-space:pre-wrap;max-height:280px;overflow-y:auto;display:none;margin-top:.75rem}
+.prompt-result.show{display:block}
+.copy-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1.1rem;background:rgba(168,85,247,.1);border:1px dashed rgba(168,85,247,.4);border-radius:.6rem;color:#9333ea;font-size:.78rem;font-weight:700;cursor:pointer;transition:.2s;margin-top:.5rem}
+.copy-btn:hover{background:rgba(168,85,247,.18);border-style:solid}
+.copy-btn.copied{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.4);color:#059669}
+.prompt-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:1rem;padding:1.5rem;transition:.3s;margin-bottom:1rem}
+.prompt-card:hover{border-color:rgba(168,85,247,.3);box-shadow:0 8px 30px rgba(168,85,247,.09)}
+.fade-in{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s cubic-bezier(.4,0,.2,1)}
+.fade-in.in-view{opacity:1;transform:translateY(0)}
+#toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(80px);background:#1e293b;color:#fff;padding:.75rem 1.5rem;border-radius:1rem;font-size:.85rem;font-weight:600;z-index:9999;transition:.3s;display:flex;align-items:center;gap:.5rem}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#back-to-top{position:fixed;bottom:2rem;right:2rem;width:3rem;height:3rem;background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;pointer-events:none;transform:translateY(20px);transition:.3s;z-index:998;border:none}
+#back-to-top.visible{opacity:1;pointer-events:all;transform:translateY(0)}
+.cat-icon{width:2.5rem;height:2.5rem;border-radius:.9rem;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.gam-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1rem}
+@media(max-width:640px){.gam-grid{grid-template-columns:1fr}}
+</style>
+  <link rel="stylesheet" href="../assets/portal-nav.css">
+</head>
+<body class="antialiased">
+<div id="scroll-progress"></div>
+<button id="sidebar-toggle"><i class="fas fa-bars"></i></button>
+<div id="sidebar-backdrop"></div>
+<button id="back-to-top"><i class="fas fa-arrow-up"></i></button>
+<div id="toast"><i class="fas fa-gamepad text-purple-400"></i> <span id="toast-msg">Pronto!</span></div>
+
+<div class="flex min-h-screen">
+<aside class="w-64 flex-shrink-0 bg-white border-r border-slate-100 shadow-sm sticky top-0 h-screen overflow-y-auto z-50">
+  <div class="p-5 border-b border-slate-100">
+    <div class="flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-white shadow text-base">🎮</div>
+      <div><div class="font-extrabold text-slate-800 text-sm leading-tight">Gamificação Educacional</div><div class="text-xs text-slate-400">Módulo 09 · EDOCENTIA</div></div>
+    </div>
+  </div>
+  <nav class="p-3 space-y-0.5">
+    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest px-2 pt-3 pb-1">Peças</p>
+    <a href="#parte-1"><i class="fas fa-trophy w-4 text-yellow-500"></i> Sistema Gamificação</a>
+    <a href="#parte-2"><i class="fas fa-scroll w-4 text-purple-500"></i> Missões e Desafios</a>
+    <a href="#parte-3"><i class="fas fa-door-open w-4 text-pink-500"></i> Sala de Fuga Educacional</a>
+    <a href="#parte-4"><i class="fas fa-star w-4 text-indigo-500"></i> Emblemas e Conquistas</a>
+    <a href="#parte-5"><i class="fas fa-dice w-4 text-emerald-500"></i> Jogo de aula completo</a>
+    <hr class="my-2 border-slate-100">
+    <a href="../index.html"><i class="fas fa-home w-4 text-slate-400"></i> Página inicial</a>
+  </nav>
+</aside>
+
+<main id="main-content" class="flex-1 min-w-0">
+<section class="hero-section text-white py-16 px-8 md:px-14">
+  <div class="max-w-4xl">
+    <a href="../index.html" class="inline-flex items-center gap-2 text-white/70 hover:text-white text-xs font-semibold mb-5 transition-colors"><i class="fas fa-arrow-left"></i> Voltar para EDOCENTIA</a>
+    <div class="inline-flex items-center gap-2 bg-white/15 border border-white/25 rounded-full px-4 py-1.5 text-xs font-semibold mb-4 backdrop-blur-sm">
+      <i class="fas fa-gamepad text-yellow-300"></i> Módulo 09 - Engajamento e motivação
+    </div>
+    <h1 class="text-3xl md:text-5xl font-extrabold leading-tight mb-3 hero-shimmer">Gamificação<br>Educacional com IA</h1>
+    <p class="text-base text-white/85 max-w-2xl leading-relaxed mb-5">Transforme sua sala de aula em uma experiência de jogo sem perder o rigor acadêmico. Projete sistemas de pontos, missões, salas de fuga e tabelas de classificação que motivem intrinsecamente os alunos.</p>
+    <div class="flex flex-wrap gap-3">
+      <a href="#parte-1" class="bg-white text-purple-700 font-bold px-5 py-2.5 rounded-xl text-sm shadow hover:-translate-y-0.5 transition-all">🏆 Sistema completo</a>
+      <a href="#parte-3" class="bg-white/15 border border-white/30 text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-white/25 transition-all">🚪 Escape Room</a>
+      <a href="#parte-5" class="bg-white/15 border border-white/30 text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-white/25 transition-all">🎲 Jogo de sala de aula</a>
+    </div>
+  </div>
+</section>
+
+<div class="max-w-5xl mx-auto px-5 md:px-10 py-10 space-y-8">
+
+<div id="parte-1" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100" open>
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3"><div class="cat-icon bg-yellow-100 text-yellow-700">🏆</div><div><div class="font-bold text-slate-800">Parte 1 - Sistema de gamificação em sala de aula</div><div class="text-xs text-slate-400">Pontos XP, nível, equipamento, recompensas e tabela de classificação</div></div></div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+<div class="prompt-card">
+  <div class="font-bold text-slate-700 text-sm mb-3">🏆 Design completo do sistema de gamificação em sala de aula</div>
+  <div class="grid md:grid-cols-2 gap-3">
+    <div class="field-group"><label class="field-label">📚 Assunto e nível</label><input type="text" class="field-input" id="gam-materia" placeholder="Ex: Inglês 3º ESO, 28 alunos"></div>
+    <div class="field-group"><label class="field-label">⏳ Duração do sistema</label><select class="field-input" id="gam-duracion"><option>Um quarto</option><option selected>Um curso completo</option><option>Uma unidade de ensino (4-6 semanas)</option></select></div>
+    <div class="field-group"><label class="field-label">🎯 Objetivo principal</label><select class="field-input" id="gam-objetivo"><option selected>Aumentar a motivação e participação</option><option>Promover o trabalho em equipe</option><option>Melhorar os resultados acadêmicos</option><option>Reduzir comportamentos perturbadores</option><option>Todas as opções acima</option></select></div>
+    <div class="field-group"><label class="field-label">⚠️ Preocupações dos professores</label><select class="field-input" id="gam-preocupaciones"><option selected>Que não seja só para os bons</option><option>Que seja sustentável ao longo do tempo</option><option>Que não tire tempo acadêmico</option><option>Que todos os alunos participem</option></select></div>
+    <div class="field-group"><label class="field-label">🛠️ Ferramentas disponíveis</label><input type="text" class="field-input" id="gam-herramientas" placeholder="Ex: ClassDojo, quadro físico, Excel, Canva, papel..."></div>
+    <div class="field-group"><label class="field-label">💡 Inspiração temática (opcional)</label><input type="text" class="field-input" id="gam-tema" placeholder="Ex: Harry Potter, RPG Medieval, Marvel, espaço..."></div>
+  </div>
+  <button class="gen-btn gen-btn-purple" onclick="generateAndShow('sistema-gamificacion')"><i class="fas fa-trophy"></i> Gerar sistema completo</button>
+  <div class="prompt-result" id="result-sistema-gamificacion"></div>
+  <button class="copy-btn" id="copy-sistema-gamificacion" onclick="copyPrompt('sistema-gamificacion')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+</div>
+</div>
+</details>
+</div>
+
+<div id="parte-2" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3"><div class="cat-icon bg-purple-100 text-purple-700">📜</div><div><div class="font-bold text-slate-800">Parte 2 — Missões, Desafios e Desafios</div><div class="text-xs text-slate-400">Banco de missão educacional para cada unidade ou trimestre</div></div></div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+<div class="gam-grid">
+<div class="prompt-card">
+  <div class="text-2xl mb-2">⚔️</div>
+  <div class="font-bold text-slate-700 text-sm mb-3">Banco de missões educacionais</div>
+  <div class="field-group"><label class="field-label">📚 Assunto e unidade</label><input type="text" class="field-input" id="mis-materia" placeholder="Ex: História 4º ESO — A 2ª Guerra Mundial"></div>
+  <div class="field-group"><label class="field-label">🎯 Tipos de missões</label><select class="field-input" id="mis-tipos"><option selected>Variedade completa (individual + grupo + extra)</option><option>Apenas individual</option><option>Apenas grupo</option><option>Missões de expansão</option></select></div>
+  <div class="field-group"><label class="field-label">🔢 Número de missões</label><select class="field-input" id="mis-num"><option>10 missões</option><option selected>15 missões</option><option>20 missões</option></select></div>
+  <button class="gen-btn gen-btn-purple" onclick="generateAndShow('banco-misiones')"><i class="fas fa-scroll"></i> Gerar missões</button>
+  <div class="prompt-result" id="result-banco-misiones"></div>
+  <button class="copy-btn" id="copy-banco-misiones" onclick="copyPrompt('banco-misiones')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+</div>
+
+<div class="prompt-card">
+  <div class="text-2xl mb-2">🏅</div>
+  <div class="font-bold text-slate-700 text-sm mb-3">Desafio semanal para toda a turma</div>
+  <div class="field-group"><label class="field-label">📚 Assunto e tópico</label><input type="text" class="field-input" id="reto-sem-materia" placeholder="Ex: Matemática 2º ESO"></div>
+  <div class="field-group"><label class="field-label">🎯 Tópico da semana</label><input type="text" class="field-input" id="reto-sem-tema" placeholder="Ex: frações, álgebra, geometria..."></div>
+  <button class="gen-btn gen-btn-pink" onclick="generateAndShow('reto-semanal')"><i class="fas fa-star"></i> Gerar desafio semanal</button>
+  <div class="prompt-result" id="result-reto-semanal"></div>
+  <button class="copy-btn" id="copy-reto-semanal" onclick="copyPrompt('reto-semanal')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+</div>
+</div>
+</div>
+</details>
+</div>
+
+<div id="parte-3" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3"><div class="cat-icon bg-pink-100 text-pink-700">🚪</div><div><div class="font-bold text-slate-800">Parte 3 — Sala de fuga educacional</div><div class="text-xs text-slate-400">Quebra-cabeças, enigmas e pistas encadeados para aprender jogando</div></div></div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+<div class="prompt-card">
+  <div class="font-bold text-slate-700 text-sm mb-3">🚪 Escape Room completo (físico ou digital)</div>
+  <div class="grid md:grid-cols-2 gap-3">
+    <div class="field-group"><label class="field-label">📚 Assunto e conteúdo</label><input type="text" class="field-input" id="er-materia" placeholder="Ex: Ciências Naturais 3º ESO — A célula"></div>
+    <div class="field-group"><label class="field-label">🎭 Narrativa/História</label><input type="text" class="field-input" id="er-narrativa" placeholder="Ex: laboratório infectado / dinossauro preso / código secreto..."></div>
+    <div class="field-group"><label class="field-label">⏱️ Duração</label><select class="field-input" id="er-duracion"><option>30 minutos (1 sessão curta)</option><option selected>55 minutos (1 sessão)</option><option>2 sessões</option></select></div>
+    <div class="field-group"><label class="field-label">💻 Formato</label><select class="field-input" id="er-formato"><option selected>Físico (papéis, envelopes, cadeados)</option><option>Digital (Google Forms / web)</option><option>Híbrido</option></select></div>
+    <div class="field-group"><label class="field-label">👥 Agrupamento</label><select class="field-input" id="er-grupos"><option selected>Grupos de 4</option><option>Grupos de 3</option><option>Casais</option><option>Classe inteira</option></select></div>
+    <div class="field-group"><label class="field-label">🔢 Número de quebra-cabeças</label><select class="field-input" id="er-enigmas"><option>3 quebra-cabeças</option><option selected>5 quebra-cabeças</option><option>7 quebra-cabeças</option></select></div>
+  </div>
+  <button class="gen-btn gen-btn-purple" onclick="generateAndShow('escape-room')"><i class="fas fa-door-open"></i> Gerar Escape Room</button>
+  <div class="prompt-result" id="result-escape-room"></div>
+  <button class="copy-btn" id="copy-escape-room" onclick="copyPrompt('escape-room')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+</div>
+</div>
+</details>
+</div>
+
+<div id="parte-4" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3"><div class="cat-icon bg-indigo-100 text-indigo-700">⭐</div><div><div class="font-bold text-slate-800">Parte 4 — Emblemas e sistema de conquistas</div><div class="text-xs text-slate-400">Projete o catálogo de emblemas para reconhecer conquistas dos alunos</div></div></div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+<div class="prompt-card">
+  <div class="font-bold text-slate-700 text-sm mb-3">⭐ Catálogo de emblemas e sistema de conquistas</div>
+  <div class="grid md:grid-cols-2 gap-3">
+    <div class="field-group"><label class="field-label">📚 Assunto e nível</label><input type="text" class="field-input" id="ins-materia" placeholder="Ex: Inglês 4º ESO"></div>
+    <div class="field-group"><label class="field-label">🎯 Aspectos a serem reconhecidos</label><select class="field-input" id="ins-aspectos"><option selected>Todos: acadêmico, atitudinal e colaborativo</option><option>Apenas acadêmico (notas e resultados)</option><option>Apenas atitudinal (comportamento, esforço)</option><option>Apenas colaborativo (trabalho em equipe)</option></select></div>
+    <div class="field-group"><label class="field-label">🔢 Número de emblemas</label><select class="field-input" id="ins-num"><option>10 emblemas (básico)</option><option selected>20 emblemas (completo)</option><option>30 emblemas (detalhados)</option></select></div>
+    <div class="field-group"><label class="field-label">💡 Tema visual</label><input type="text" class="field-input" id="ins-tema" placeholder="Ex: emojis, super-heróis, natureza, livros..."></div>
+  </div>
+  <button class="gen-btn gen-btn-purple" onclick="generateAndShow('insignias')"><i class="fas fa-star"></i> Gerar catálogo de emblemas</button>
+  <div class="prompt-result" id="result-insignias"></div>
+  <button class="copy-btn" id="copy-insignias" onclick="copyPrompt('insignias')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+</div>
+</div>
+</details>
+</div>
+
+<div id="parte-5" class="fade-in">
+<details class="card-pro !p-0 border border-slate-100">
+<summary class="flex items-center justify-between p-5 cursor-pointer">
+  <div class="flex items-center gap-3"><div class="cat-icon bg-emerald-100 text-emerald-700">🎲</div><div><div class="font-bold text-slate-800">Parte 5 — Jogo de aula com tabuleiro ou APP</div><div class="text-xs text-slate-400">Jogo de tabuleiro educacional com regras, cartas e mecânica de jogo</div></div></div>
+  <i class="fas fa-chevron-down text-slate-400 chev"></i>
+</summary>
+<div class="px-5 pb-6 pt-3 border-t border-slate-50">
+<div class="prompt-card">
+  <div class="font-bold text-slate-700 text-sm mb-3">🎲 Design de jogo educacional completo para sala de aula</div>
+  <div class="grid md:grid-cols-2 gap-3">
+    <div class="field-group"><label class="field-label">📚 Assunto, nível e conteúdo</label><input type="text" class="field-input" id="juego-materia" placeholder="Ex: Geografia 2º ESO - Europa física e política"></div>
+    <div class="field-group"><label class="field-label">🎮 Tipo de jogo</label><select class="field-input" id="juego-tipo"><option selected>Jogo de tabuleiro (tipo trivial adaptado)</option><option>Jogo de cartas</option><option>Roleplay / RPG</option><option>Jogo cooperativo</option><option>Jogo de perguntas</option></select></div>
+    <div class="field-group"><label class="field-label">👥 Número de jogadores por grupo</label><select class="field-input" id="juego-jugadores"><option>2 jogadores (pares)</option><option selected>3-4 jogadores</option><option>5-6 jogadores</option><option>Classe inteira</option></select></div>
+    <div class="field-group"><label class="field-label">⏱️ Duração do jogo</label><select class="field-input" id="juego-duracion"><option>20-30 minutos</option><option selected>45-55 minutos (1 sessão)</option><option>Multisessão (2-3 aulas)</option></select></div>
+  </div>
+  <button class="gen-btn gen-btn-pink" onclick="generateAndShow('juego-educativo')"><i class="fas fa-dice"></i> Gerar jogo educativo</button>
+  <div class="prompt-result" id="result-juego-educativo"></div>
+  <button class="copy-btn" id="copy-juego-educativo" onclick="copyPrompt('juego-educativo')" style="display:none"><i class="fas fa-copy"></i> Copiar</button>
+</div>
+</div>
+</details>
+</div>
+
+</div>
+</main>
+</div>
+
+<script>
+window.addEventListener('scroll',()=>{document.getElementById('scroll-progress').style.width=(window.scrollY/(document.body.scrollHeight-window.innerHeight))*100+'%';document.getElementById('back-to-top').classList.toggle('visible',window.scrollY>400);});
+document.getElementById('back-to-top').onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+const io=new IntersectionObserver(e=>e.forEach(en=>{if(en.isIntersecting)en.target.classList.add('in-view')}),{threshold:.08});
+document.querySelectorAll('.fade-in').forEach(el=>io.observe(el));
+document.getElementById('sidebar-toggle').onclick=()=>{document.querySelector('aside').classList.toggle('sidebar-open');document.getElementById('sidebar-backdrop').classList.toggle('active')};
+document.getElementById('sidebar-backdrop').onclick=()=>{document.querySelector('aside').classList.remove('sidebar-open');document.getElementById('sidebar-backdrop').classList.remove('active')};
+function showToast(msg){document.getElementById('toast-msg').textContent=msg;document.getElementById('toast').classList.add('show');setTimeout(()=>document.getElementById('toast').classList.remove('show'),2500);}
+
+const PROMPTS={
+  'sistema-gamificacion':()=>{const m=document.getElementById('gam-materia').value||'[disciplina]';const d=document.getElementById('gam-duracion').value;const o=document.getElementById('gam-objetivo').value;const p=document.getElementById('gam-preocupaciones').value;const h=document.getElementById('gam-herramientas').value||"ferramentas básicas";const t=document.getElementById('gam-tema').value;return `Atua como um especialista em gamificação educacional e psicologia da aprendizagem. Projete um SISTEMA DE GAMIFICAÇÃO COMPLETO para a sala de aula ${m}, duração: ${d}.
+OBJETIVO: ${o}
+PRINCIPAL PREOCUPAÇÃO: ${p}
+FERRAMENTAS: ${h}\n${t?"TÓPICO: "+t:''}
+
+1. NOME E NARRATIVA DO SISTEMA
+• Nome do sistema de gamificação
+• História/universo que o rodeia (se tiver tema: ${t})
+• Como é apresentado aos alunos no primeiro dia
+2. ELEMENTOS DO SISTEMA
+PONTOS XP:
+• Como são ganhos (ações acadêmicas e atitudinais)
+• Quanto XP cada ação vale
+• XP máximo semanal
+NÍVEIS:
+• 5-7 níveis com nomes temáticos
+• XP necessário para cada nível
+• Benefício que cada nível oferece
+EQUIPES:
+• Como as equipes são formadas (aleatória, por nível, escolhido)
+• Nome e personalização
+• Pontos de equipe vs. pontos individuais
+LEADERBOARD:
+• Formato (físico em ${h} / digital)
+• Frequência de atualização
+• Como evitar desencorajando aqueles que estão por trás de
+3. MECÂNICA ESPECÍFICA (adaptada para ${m})
+• 5 maneiras de ganhar XP na classe
+• 3 maneiras de ganhar XP fora da classe
+• 2-3 penalidades (opcional, leve)
+• Bônus semanal/desafio de grupo
+4. RECOMPENSAS
+• Recompensas acadêmicas (que não distorcem a avaliação)
+• Recompensas simbólicas e de autonomia
+• Recompensas de grupo
+5. SEMANA POR SEMANA IMPLEMENTAÇÃO
+• Semana 1: Como iniciar o sistema
+• Semanas 2-4: Rotina semanal
+• Mensal: Evento especial
+• Encerramento: Cerimônia de fim do sistema
+6. SOLUÇÃO PARA PREOCUPAÇÃO: ${p}
+• Como este sistema corrige especificamente este
+7. AVALIAÇÃO DO SISTEMA
+• Indicadores de que
+está funcionando • Como redefini-lo se não motivar`;},
+
+  'banco-misiones':()=>{const m=document.getElementById('mis-materia').value||'[disciplina]';const t=document.getElementById('mis-tipos').value;const n=document.getElementById('mis-num').value;return `Atua como designer de gamificação educacional. Crie um BANCO DE ${n} para ${m}, digite: ${t}.
+Para cada missão, use este formato:
+🎯 MISSÃO [N]: [NOME ÉPICO]
+━━━━━━━━━━━━━━━━━━━━━━━━
+• TIPO: [indivíduo/casal/equipe/turma]
+• DIFICULDADE: [⭐ fácil / ⭐⭐ médio / ⭐⭐⭐ difícil / 💀 épico]
+• RECOMPENSA XP: [número de pontos]
+• TEMPO: [quando/quanto tempo leva para completar]
+OBJETIVO:
+[O que os alunos aprendem ou praticam]
+A MISSÃO:
+[Descrição do que eles devem fazer na linguagem de jogo/aventura]
+CRITÉRIOS DE SUCESSO:
+[Como o aluno sabe que completou a missão]
+COMO ENTREGUE:
+[Onde e como a missão concluída é apresentada]
+Variedade obrigatória: missões de pesquisa, criativas, práticas, cooperativas, de serviço, expansão e ocultas/secretas.`;},
+
+  'reto-semanal':()=>{const m=document.getElementById('reto-sem-materia').value||'[disciplina]';const t=document.getElementById('reto-sem-tema').value||'[tema]';return `Atua como professor gamificador. Projete um DESAFIO DE GRUPO SEMANAL para ${m}, tópico: ${t}.
+O desafio semanal inclui:
+🏆 NOME DO DESAFIO
+(Épico, Misterioso ou Humorístico)
+APRESENTAÇÃO DE SEGUNDA-FEIRA:
+[Como anunciar o desafio no início da semana, quais são as informações dado e o que é reserva]
+O DESAFIO:
+[Descrição completa do que devem alcançar em ${t}]
+• Individual ou em grupo?
+• Você trabalha em sala de aula, em casa ou ambos?
+• Produto ou prova que deve ser apresentada
+RECOMPENSA:
+• XP para os vencedores
+• Algum benefício simbólico especial
+COMO É AVALIADO:
+[Critério rápido para determinar o vencedor ou se o grupo conseguiu o desafio]
+ENCERRAMENTO DE SEXTA-FEIRA:
+[cerimônia de 5 minutos para encerrar o desafio e comemorar]
+VARIANTES:
+• Desafio mais fácil (para alunos com dificuldades)
+• Desafio mais difícil (para alunos avançados)`;},
+
+  'escape-room':()=>{const m=document.getElementById('er-materia').value||'[disciplina]';const n=document.getElementById('er-narrativa').value||"mistério na sala de aula";const d=document.getElementById('er-duracion').value;const f=document.getElementById('er-formato').value;const g=document.getElementById('er-grupos').value;const e=document.getElementById('er-enigmas').value;return `Atuar como designer de experiências educacionais. Projete uma SALA DE ESCAPE EDUCACIONAL COMPLETA de ${d}, formato ${f}, para ${m}.
+NARRATIVA: ${n}
+AGRUPAMENTO: ${g}
+NÚMERO DE ENIGMAS: ${e}
+
+1. HISTÓRIA DE INTRODUÇÃO
+• Texto introdutório que o professor lê/dramatiza
+• O “problema” que deve resolver
+• As regras da sala de fuga
+2. MAPA DA SALA DE ESCAPE
+• Sequência de quebra-cabeças encadeados
+• Como cada solução desbloqueia o próximo quebra-cabeça
+3. QUEBRA-CABEÇAS COMPLETOS (${e})
+Para cada quebra-cabeça:
+🔒 ENIGMA [N]: [NOME]
+• Tipo: [anagrama / código / quebra-cabeça / pergunta / imagem / cálculo / lógica]
+• CONTEÚDO CURRICULAR que funciona
+• DECLARAÇÃO COMPLETA do enigma
+• Materiais necessários (se aplicável) ${f})
+• SOLUÇÃO (texto ou código)
+• DICA se eles forem bloqueados (opcional)
+4. O DESBLOQUEIO FINAL
+• O que acontece quando eles resolvem todos os quebra-cabeças
+• Recompensa ou celebração
+5. GESTÃO DO PROFESSOR
+• Como preparar a sala de aula com antecedência
+• O que fazer se um grupo ficar muito preso
+• Controle de tempo
+6. AVALIAÇÃO
+• A sala de fuga é avaliada? Como?
+• Reflexão pedagógica pós-fuga`;},
+
+  'insignias':()=>{const m=document.getElementById('ins-materia').value||'[disciplina]';const a=document.getElementById('ins-aspectos').value;const n=document.getElementById('ins-num').value;const t=document.getElementById('ins-tema').value||"tema livre";return `Atua como designer de sistemas gamificados. Cria um CATÁLOGO DE ${n} para ${m}.
+ASPECTOS: ${a}
+TEMA VISUAL: ${t}
+
+Organize os emblemas em CATEGORIAS:
+🎓 SELOS ACADÊMICOS (por resultados e conquistas de conteúdo)
+🤝 SELOS DE COLABORAÇÃO (trabalho em equipe)
+💪 SELOS DE CRESCIMENTO (melhoria e esforço)
+⚡ SELOS ESPECIAIS (momentos únicos)
+🌟 SELOS SECRETOS (que os alunos descobrem)
+Para CADA SELO:
+[EMOJI + NOME DO SELO]
+• Breve descrição (o que representa)
+• Como é obtido (critérios objetivos e claros)
+• Raridade: [comum / incomum / raro / épico / lendário]
+• Como é concedido: [automático / decisão do professor / votação]
+• Texto de felicitações no recebimento
+NO FINAL: INSTRUÇÕES para entrega dos emblemas (modelo de diploma, adesivo, ClassDojo, digital...)`;},
+
+  'juego-educativo':()=>{const m=document.getElementById('juego-materia').value||'[disciplina]';const t=document.getElementById('juego-tipo').value;const j=document.getElementById('juego-jugadores').value;const d=document.getElementById('juego-duracion').value;return `Atuar como designer de jogos educacionais. Projete um "${t}" completo para ${m}, ${j}, ${d}.
+1. NOME E DESCRIÇÃO DO JOGO
+• Nome atraente
+• Premissa do jogo
+• Conhecimento que é trabalhado
+2. COMPONENTES DO JOGO (materiais)
+• Lista completa de materiais necessários
+• Como fazê-los (modelos imprimíveis, cartões, etc.)
+• Versão com materiais mínimos
+3. OBJETIVO DO JOGO
+• Condição de vitória
+• Condição de cooperação (se aplicável)
+4. REGRAS COMPLETAS
+• Preparação e configuração
+• Turno do jogo (o que você pode fazer no seu turno)
+• Mecânica especial distinta
+• Penalidades ou curingas
+• Como o jogo termina
+5. CARTAS/PERGUNTAS SOBRE ${m}
+• 15-20 perguntas/cartões com suas respostas
+• Distribuídos por dificuldade
+• Diretamente relacionado ao conteúdo
+6. VERSÃO RÁPIDA (20 min)
+Regras simplificadas para aulas com pouco tempo
+7. COMO O PROFESSOR AVALIA
+Se o jogo faz parte da avaliação: como e o que observar`}
+};
+
+function generateAndShow(key){const prompt=PROMPTS[key]();const el=document.getElementById('result-'+key);el.textContent=prompt;el.classList.add('show');const btn=document.getElementById('copy-'+key);if(btn)btn.style.display='inline-flex';el.scrollIntoView({behavior:'smooth',block:'nearest'});}
+function copyPrompt(key){const el=document.getElementById('result-'+key);navigator.clipboard.writeText(el.textContent).then(()=>{const btn=document.getElementById('copy-'+key);if(btn){btn.classList.add('copied');btn.innerHTML="<i class=\"fas fa-check\"></i>Copiado!";}showToast("✅ Prompt copiado");setTimeout(()=>{if(btn){btn.classList.remove('copied');btn.innerHTML="Cópia<i class=\"fas fa-copy\"></i>";}},2000);});}
+</script>
+  <script src="../assets/portal-nav.js"></script>
+</body>
+</html>
